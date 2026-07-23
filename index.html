@@ -48,10 +48,11 @@
   --gutter:clamp(1.25rem, 5vw, 5rem);
 
   /* ============================================================
-     REGISTRATION URL — change this ONE value to update every
-     "Reserve" / "RSVP" / "Join the Table" button on the page.
+     RSVP: all "Reserve" / "RSVP" / "Join the Table" buttons scroll
+     to the embedded registration form near the bottom of the page.
+     To change the form, edit the iframe's src in the RSVP section
+     (search for "getFormView").
      ============================================================ */
-  --rsvp-url:"https://www.chabadyoungsp.com/shabbat";
 }
 
 *{margin:0;padding:0;box-sizing:border-box}
@@ -297,6 +298,18 @@ section{padding:var(--section-y) 0}
 .final__title{font-size:clamp(2.4rem,6.5vw,5rem);line-height:1.02;max-width:16ch;margin:1.2rem auto 1.6rem}
 .final__text{max-width:48ch;margin:0 auto 2.4rem;color:var(--soft);font-size:1.1rem}
 .final__date{margin-top:1.6rem;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+
+/* RSVP */
+.rsvp{background:linear-gradient(180deg,#0a0b0c,var(--ink))}
+.rsvp__frame{
+  max-width:760px;margin:0 auto;
+  background:var(--cream);
+  border-radius:16px;
+  padding:clamp(.75rem,2vw,1.5rem);
+  box-shadow:0 24px 70px rgba(0,0,0,.45);
+  overflow:hidden;
+}
+.rsvp__frame iframe{display:block;width:100%;border:0;border-radius:8px;background:var(--cream)}
 
 /* FOOTER */
 .footer{background:#08090a;padding:clamp(4rem,8vw,6rem) 0 3rem;border-top:1px solid var(--line)}
@@ -561,6 +574,27 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
 </section>
 
 <!-- ============================================================
+     RSVP — embedded registration form
+     To swap the form, replace the iframe's src below.
+     ============================================================ -->
+<section class="rsvp" id="rsvp">
+  <div class="container">
+    <p class="eyebrow section-eyebrow reveal" style="text-align:center">RSVP</p>
+    <h2 class="section-title reveal" style="text-align:center;margin-bottom:1rem;font-size:clamp(2rem,5vw,3.4rem)">Reserve your seat</h2>
+    <p class="lead reveal" style="text-align:center;margin:0 auto 2.5rem">Fill out the form below to save your place at the table. Come with friends or come on your own &mdash; everyone is welcome.</p>
+    <div class="rsvp__frame reveal">
+      <iframe
+        src="https://chabadsp.chabadms.com/api/Forms/getFormView?id=6ef53d51-2c73-4046-a553-d265463bf39d"
+        title="CYP Shabbat RSVP form"
+        loading="lazy"
+        width="100%"
+        height="2000"
+        frameborder="0"></iframe>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
      FOOTER
      ============================================================ -->
 <footer class="footer">
@@ -624,11 +658,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
 (function(){
   "use strict";
 
-  /* --- Registration URL: read from the CSS variable so there's ONE source of truth --- */
-  var RSVP_URL = getComputedStyle(document.documentElement)
-                   .getPropertyValue('--rsvp-url').trim().replace(/^["']|["']$/g,'');
+  /* --- RSVP buttons scroll down to the embedded form section (#rsvp) --- */
   document.querySelectorAll('[data-rsvp]').forEach(function(el){
-    el.setAttribute('href', RSVP_URL);        // opens in the SAME tab
+    el.setAttribute('href', '#rsvp');         // smooth-scrolls to the form on the same page
   });
 
   /* --- Nav darkens after scrolling --- */
