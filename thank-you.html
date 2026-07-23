@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>You're In · CYP Shabbat — Happy Hour, Holy Hour</title>
+<meta name="description" content="Your seat is reserved for CYP Shabbat on Friday, August 7, 2026. Add it to your calendar and bring a friend.">
+<meta name="robots" content="noindex"><!-- confirmation page: keep out of search results -->
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="I'm going to CYP Shabbat — Happy Hour, Holy Hour">
+<meta property="og:description" content="Friday, August 7 in downtown St. Pete. A night for Jewish young adults — happy hour, Shabbat, and a sit-down dinner. Come with me!">
+<meta property="og:url" content="https://www.chabadyoungsp.com/shabbat">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=Manrope:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS — mirrors the main site (index.html)
+   ============================================================ */
+:root{
+  --ink:#0c0d0e;
+  --charcoal:#16181b;
+  --cream:#f3ede1;
+  --soft:#cfc9bd;
+  --dim:#8b8579;
+  --teal:#7fb5ac;
+  --teal-deep:#3f6d67;
+  --candle:#e8b06a;
+  --line:rgba(243,237,225,0.14);
+  --serif:'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --gutter:clamp(1.25rem, 5vw, 3rem);
+
+  /* ============================================================
+     EVENT DETAILS — edit these to reuse this page for another event.
+     Times are ISO format (YYYYMMDDTHHMMSS) in local time for the .ics file.
+     ============================================================ */
+  --home-url:"https://www.chabadyoungsp.com/shabbat";
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--ink);
+  color:var(--soft);
+  font-family:var(--sans);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  min-height:100svh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:clamp(2rem,6vw,4rem) var(--gutter);
+  position:relative;
+  overflow-x:hidden;
+}
+
+/* Soft candlelight glow behind the card */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(60% 50% at 50% 30%, rgba(232,176,106,.10), transparent 70%),
+    radial-gradient(50% 40% at 80% 80%, rgba(127,181,172,.06), transparent 70%);
+  pointer-events:none;
+}
+
+.card{
+  position:relative;z-index:1;
+  width:100%;max-width:600px;
+  text-align:center;
+}
+
+.eyebrow{
+  font-size:.72rem;font-weight:600;letter-spacing:.32em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:1.4rem;
+  opacity:0;animation:fadeUp .8s .1s forwards;
+}
+
+/* Animated check mark */
+.check{
+  width:72px;height:72px;margin:0 auto 1.8rem;
+  border-radius:50%;border:1.5px solid var(--teal-deep);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;animation:fadeUp .8s .05s forwards;
+}
+.check svg{width:34px;height:34px}
+.check svg path{
+  stroke:var(--teal);stroke-width:2.4;fill:none;
+  stroke-linecap:round;stroke-linejoin:round;
+  stroke-dasharray:48;stroke-dashoffset:48;
+  animation:draw .7s .5s ease forwards;
+}
+
+h1{
+  font-family:var(--serif);font-weight:400;color:var(--cream);
+  font-size:clamp(2.4rem,7vw,3.8rem);line-height:1.02;
+  margin-bottom:1rem;
+  opacity:0;animation:fadeUp .8s .2s forwards;
+}
+h1 em{font-style:italic;color:var(--teal)}
+
+.intro{
+  max-width:40ch;margin:0 auto 2.4rem;
+  font-size:clamp(1rem,2.2vw,1.15rem);color:var(--soft);
+  opacity:0;animation:fadeUp .8s .3s forwards;
+}
+
+/* Event detail block */
+.event{
+  border:1px solid var(--line);border-radius:14px;
+  padding:1.8rem 1.6rem;margin-bottom:2.4rem;
+  background:rgba(243,237,225,0.02);
+  text-align:left;
+  opacity:0;animation:fadeUp .8s .4s forwards;
+}
+.event__row{display:flex;gap:1rem;padding:.55rem 0;align-items:baseline}
+.event__row + .event__row{border-top:1px solid var(--line)}
+.event__key{
+  flex:0 0 5.5rem;font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);padding-top:.25rem;
+}
+.event__val{color:var(--cream);font-size:1.02rem}
+.event__val small{display:block;color:var(--soft);font-size:.9rem;margin-top:.15rem}
+
+/* Section labels */
+.label{
+  font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--dim);margin:0 0 1rem;
+}
+
+/* Button groups */
+.actions{margin-bottom:2.2rem;opacity:0;animation:fadeUp .8s .5s forwards}
+.btn-row{display:flex;flex-wrap:wrap;gap:.7rem;justify-content:center}
+
+.btn{
+  display:inline-flex;align-items:center;gap:.55rem;
+  font-family:var(--sans);font-weight:600;font-size:.82rem;
+  letter-spacing:.04em;
+  padding:.85rem 1.5rem;border-radius:2.5rem;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--cream);
+  transition:transform .25s ease,border-color .25s ease,background .25s ease,color .25s ease;
+  text-decoration:none;
+}
+.btn:hover{transform:translateY(-2px);border-color:var(--teal);color:var(--cream)}
+.btn svg{width:17px;height:17px;flex:0 0 17px}
+.btn--primary{background:var(--cream);color:var(--ink);border-color:var(--cream)}
+.btn--primary:hover{background:#fff;color:var(--ink)}
+.btn--share{border-color:var(--teal-deep)}
+.btn--share:hover{background:rgba(127,181,172,.08)}
+
+.divider{height:1px;background:var(--line);margin:0 auto 2rem;max-width:120px}
+
+.home-link{
+  display:inline-block;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--soft);border-bottom:1px solid var(--line);padding-bottom:.25rem;
+  transition:color .3s,border-color .3s;
+  opacity:0;animation:fadeUp .8s .6s forwards;
+}
+.home-link:hover{color:var(--cream);border-color:var(--teal)}
+
+.footnote{
+  margin-top:2.6rem;font-size:.78rem;color:var(--dim);
+  opacity:0;animation:fadeUp .8s .7s forwards;
+}
+
+/* tiny toast for "copied!" feedback */
+.toast{
+  position:fixed;left:50%;bottom:2rem;transform:translateX(-50%) translateY(20px);
+  background:var(--cream);color:var(--ink);
+  padding:.7rem 1.3rem;border-radius:2rem;font-size:.85rem;font-weight:600;
+  opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:10;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes draw{to{stroke-dashoffset:0}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  .check svg path{stroke-dashoffset:0}
+  .eyebrow,.check,h1,.intro,.event,.actions,.home-link,.footnote{opacity:1}
+}
+
+a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:4px}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="check" aria-hidden="true">
+    <svg viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+  </div>
+
+  <p class="eyebrow">Reservation Confirmed</p>
+  <h1>You're <em>in.</em></h1>
+  <p class="intro">Your seat at the Shabbat table is saved. We can't wait to see you &mdash; here are the details, and don't forget to bring a friend.</p>
+
+  <!-- EVENT DETAILS -->
+  <div class="event">
+    <div class="event__row">
+      <span class="event__key">When</span>
+      <span class="event__val">Friday, August 7, 2026<small>7:00 PM Happy Hour, Holy Hour &nbsp;·&nbsp; 7:45 PM Shabbat Dinner</small></span>
+    </div>
+    <div class="event__row">
+      <span class="event__key">Where</span>
+      <span class="event__val">Chabad Center for Jewish Life<small>533 4th Street North, St. Petersburg, FL</small></span>
+    </div>
+  </div>
+
+  <!-- ADD TO CALENDAR -->
+  <div class="actions">
+    <p class="label">Add to your calendar</p>
+    <div class="btn-row">
+      <a class="btn btn--primary" id="googleCal" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Google Calendar
+      </a>
+      <button class="btn" id="icsBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Apple / Outlook
+      </button>
+    </div>
+  </div>
+
+  <!-- SHARE WITH FRIENDS -->
+  <div class="actions">
+    <p class="label">Bring a friend</p>
+    <div class="btn-row">
+      <button class="btn btn--share" id="nativeShare" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+        Share
+      </button>
+      <a class="btn btn--share" id="waShare" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15l-1.3 4.8 4.9-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-2.9.8.8-2.8-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.4-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-2-1.2 7.4 7.4 0 0 1-1.3-1.7c-.1-.2 0-.4.1-.5l.4-.4.2-.4v-.4c0-.1-.6-1.4-.8-1.9s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3A2.9 2.9 0 0 0 5 8.6a5 5 0 0 0 1 2.6 11.5 11.5 0 0 0 4.4 3.9c.6.3 1.1.4 1.5.5a3.5 3.5 0 0 0 1.6.1c.5-.1 1.4-.6 1.6-1.1s.2-1 .2-1.1-.2-.2-.4-.3z"/></svg>
+        WhatsApp
+      </a>
+      <a class="btn btn--share" id="smsShare">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-4-.9L3 20l1-4a8.4 8.4 0 0 1-.9-4 8.4 8.4 0 0 1 9-8.4 8.4 8.4 0 0 1 8.9 8.4z"/></svg>
+        Text
+      </a>
+      <button class="btn btn--share" id="copyLink">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-1 1"/><path d="M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l1-1"/></svg>
+        Copy link
+      </button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <a class="home-link" id="homeLink">Back to the event page</a>
+
+  <p class="footnote">Questions? Reply to your confirmation email and we'll take care of you.</p>
+</div>
+
+<div class="toast" id="toast">Link copied</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ============================================================
+     EVENT DATA — one place to edit everything.
+     Dates are LOCAL time (Eastern). Format: YYYYMMDDTHHMMSS
+     ============================================================ */
+  var EVENT = {
+    title:    "CYP Shabbat — Happy Hour, Holy Hour",
+    start:    "20260807T190000",   // Aug 7, 2026, 7:00 PM
+    end:      "20260807T223000",   // ends 10:30 PM (edit if needed)
+    location: "Chabad Center for Jewish Life, 533 4th Street North, St. Petersburg, FL",
+    details:  "A night for Jewish young adults in St. Pete. 7:00 PM Happy Hour, Holy Hour · 7:45 PM Shabbat Dinner. Hosted by Chabad Young Professionals of St. Petersburg.",
+    shareUrl: getComputedStyle(document.documentElement)
+                .getPropertyValue('--home-url').trim().replace(/^["']|["']$/g,'')
+  };
+
+  document.getElementById('homeLink').setAttribute('href', EVENT.shareUrl);
+
+  /* ---------- ADD TO CALENDAR ---------- */
+
+  // Google Calendar link
+  var g = "https://calendar.google.com/calendar/render?action=TEMPLATE"
+        + "&text=" + encodeURIComponent(EVENT.title)
+        + "&dates=" + EVENT.start + "/" + EVENT.end
+        + "&location=" + encodeURIComponent(EVENT.location)
+        + "&details=" + encodeURIComponent(EVENT.details);
+  document.getElementById('googleCal').setAttribute('href', g);
+
+  // Apple / Outlook: build and download an .ics file
+  document.getElementById('icsBtn').addEventListener('click', function(){
+    var ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//CYP St. Pete//Shabbat//EN",
+      "BEGIN:VEVENT",
+      "UID:" + EVENT.start + "-cypshabbat@chabadyoungsp.com",
+      "DTSTAMP:" + EVENT.start,
+      "DTSTART:" + EVENT.start,
+      "DTEND:" + EVENT.end,
+      "SUMMARY:" + EVENT.title,
+      "LOCATION:" + EVENT.location.replace(/,/g, "\\,"),
+      "DESCRIPTION:" + EVENT.details.replace(/,/g, "\\,"),
+      "END:VEVENT",
+      "END:VCALENDAR"
+    ].join("\r\n");
+    var blob = new Blob([ics], {type:"text/calendar;charset=utf-8"});
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url; a.download = "cyp-shabbat.ics";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  /* ---------- SHARE WITH FRIENDS ---------- */
+
+  var shareText = "I'm going to CYP Shabbat — Happy Hour, Holy Hour on Friday, Aug 7 in St. Pete! Come with me:";
+  var fullMsg = shareText + " " + EVENT.shareUrl;
+
+  // WhatsApp
+  document.getElementById('waShare').setAttribute('href',
+    "https://wa.me/?text=" + encodeURIComponent(fullMsg));
+
+  // Text message (SMS)
+  document.getElementById('smsShare').setAttribute('href',
+    "sms:?&body=" + encodeURIComponent(fullMsg));
+
+  // Native share sheet (phones) — show only if supported
+  if (navigator.share) {
+    var ns = document.getElementById('nativeShare');
+    ns.hidden = false;
+    ns.addEventListener('click', function(){
+      navigator.share({
+        title: EVENT.title,
+        text: shareText,
+        url: EVENT.shareUrl
+      }).catch(function(){ /* user cancelled — ignore */ });
+    });
+  }
+
+  // Copy link
+  var toast = document.getElementById('toast');
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 1800);
+  }
+  document.getElementById('copyLink').addEventListener('click', function(){
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(EVENT.shareUrl)
+        .then(function(){ showToast("Link copied"); })
+        .catch(function(){ showToast("Couldn't copy"); });
+    } else {
+      // fallback for older browsers
+      var t = document.createElement("textarea");
+      t.value = EVENT.shareUrl; document.body.appendChild(t);
+      t.select(); try{ document.execCommand("copy"); showToast("Link copied"); }
+      catch(e){ showToast("Couldn't copy"); }
+      document.body.removeChild(t);
+    }
+  });
+})();
+</script>
+</body>
+</html>
