@@ -364,10 +364,31 @@ section{padding:var(--section-y) 0}
   .footer__grid{grid-template-columns:1fr}
   .footer__links{justify-content:flex-start}
   .slot{grid-template-columns:1fr;gap:.8rem}
+  /* tighten section rhythm so there's less endless scrolling */
+  :root{--section-y:clamp(3.5rem,9vw,6rem)}
 }
 @media (max-width:520px){
   .hero__meta{font-size:.8rem}
   .details__row{grid-template-columns:1fr;gap:.4rem}
+  /* hero fits comfortably on small screens */
+  .hero__title{font-size:clamp(3rem,15vw,4.5rem)}
+  .hero__content{padding-top:4rem}
+  .hero__sub{font-size:1.05rem}
+  /* stack the hero actions and make the button a full-width tap target */
+  .hero__cta{flex-direction:column;align-items:stretch;gap:1rem}
+  .hero__cta .btn{text-align:center}
+  /* full-width primary buttons everywhere are easier to tap */
+  .btn{display:block;padding:1.1rem 1.5rem}
+  .btn-row .btn{display:inline-flex}         /* keep share/calendar chips inline */
+  .details__cta .btn{width:100%;text-align:center}
+  /* bigger, easier menu button */
+  .nav__toggle{padding:.6rem}
+  .nav__logo{font-size:1.2rem}
+  /* tier cards a touch more compact */
+  .tier{padding:1.8rem 1.2rem}
+  .tier__price{font-size:3rem}
+  /* headings never run to the screen edge */
+  .section-title{font-size:clamp(2.1rem,9vw,3rem)}
 }
 
 /* Respect reduced motion */
@@ -379,6 +400,12 @@ section{padding:var(--section-y) 0}
 
 /* Visible keyboard focus */
 a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offset:3px;border-radius:3px}
+
+/* On touch devices, cancel the hover "lift" so effects don't stick after a tap */
+@media (hover:none){
+  .btn:hover,.card:hover,.tier:hover,.gallery__item:hover img,.details__cta .btn:hover{transform:none}
+  .card:active,.tier:active{transform:scale(.99)}   /* subtle tap feedback instead */
+}
 </style>
 </head>
 <body>
