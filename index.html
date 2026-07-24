@@ -48,10 +48,10 @@
   --gutter:clamp(1.25rem, 5vw, 5rem);
 
   /* ============================================================
-     RSVP: all "Reserve" / "RSVP" / "Join the Table" buttons scroll
-     to the embedded registration form near the bottom of the page.
-     To change the form, edit the iframe's src in the RSVP section
-     (search for "getFormView").
+     TICKETS: all "Tickets" / "Get Tickets" buttons scroll to the
+     ticket-drop announcement near the bottom of the page (#rsvp).
+     When tickets go live, restore the registration form in that
+     section (see the "RSVP — ticket drop announcement" comment).
      ============================================================ */
 }
 
@@ -299,17 +299,33 @@ section{padding:var(--section-y) 0}
 .final__text{max-width:48ch;margin:0 auto 2.4rem;color:var(--soft);font-size:1.1rem}
 .final__date{margin-top:1.6rem;font-size:.8rem;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
 
-/* RSVP */
+/* RSVP / Tickets */
 .rsvp{background:linear-gradient(180deg,#0a0b0c,var(--ink))}
-.rsvp__frame{
-  max-width:760px;margin:0 auto;
-  background:var(--cream);
-  border-radius:16px;
-  padding:clamp(.75rem,2vw,1.5rem);
-  box-shadow:0 24px 70px rgba(0,0,0,.45);
-  overflow:hidden;
+.tiers{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;
+  max-width:880px;margin:0 auto;
 }
-.rsvp__frame iframe{display:block;width:100%;border:0;border-radius:8px;background:var(--cream)}
+.tier{
+  display:flex;flex-direction:column;align-items:center;text-align:center;
+  border:1px solid var(--line);border-radius:14px;
+  padding:2.2rem 1.4rem;background:rgba(243,237,225,0.02);
+  transition:transform .4s ease,border-color .4s ease;
+}
+.tier:hover{transform:translateY(-5px);border-color:var(--teal-deep)}
+.tier--flash{
+  border-color:var(--teal);
+  background:linear-gradient(180deg,rgba(127,181,172,.08),rgba(232,176,106,.04));
+  box-shadow:0 18px 50px rgba(127,181,172,.10);
+}
+.tier__tag{
+  font-size:.66rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:1.2rem;font-weight:600;
+}
+.tier--flash .tier__tag{color:var(--candle)}
+.tier__price{
+  font-family:var(--serif);font-size:3.4rem;line-height:1;color:var(--cream);margin-bottom:1rem;
+}
+.tier__when{font-size:.86rem;color:var(--soft);line-height:1.5}
 
 /* FOOTER */
 .footer{background:#08090a;padding:clamp(4rem,8vw,6rem) 0 3rem;border-top:1px solid var(--line)}
@@ -340,6 +356,7 @@ section{padding:var(--section-y) 0}
   .nav__links{display:none}
   .nav__toggle{display:flex}
   .cards{grid-template-columns:1fr}
+  .tiers{grid-template-columns:1fr;max-width:420px}
   .details__inner{grid-template-columns:1fr}
   .gallery__grid{grid-template-columns:1fr;grid-template-rows:none;height:auto}
   .gallery__item{height:52vw;min-height:220px}
@@ -376,7 +393,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
     <a href="#experience">Experience</a>
     <a href="#details">Details</a>
     <a href="#faq">FAQ</a>
-    <a href="#" class="nav__rsvp" data-rsvp>RSVP</a>
+    <a href="#" class="nav__rsvp" data-rsvp>Tickets</a>
   </div>
   <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -388,7 +405,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
   <a href="#experience">Experience</a>
   <a href="#details">Details</a>
   <a href="#faq">FAQ</a>
-  <a href="#" data-rsvp>RSVP</a>
+  <a href="#" data-rsvp>Tickets</a>
 </div>
 
 <!-- ============================================================
@@ -412,7 +429,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
       <span>7:45 PM Shabbat Dinner</span>
     </div>
     <div class="hero__cta">
-      <a href="#" class="btn" data-rsvp>Reserve Your Seat</a>
+      <a href="#" class="btn" data-rsvp>Get Tickets</a>
       <a href="#evening" class="text-link">Discover the Evening</a>
     </div>
   </div>
@@ -504,7 +521,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
       </dl>
     </div>
     <div class="details__cta reveal">
-      <a href="#" class="btn" data-rsvp>Join the Table</a>
+      <a href="#" class="btn" data-rsvp>Get Tickets</a>
       <p class="details__note">Come with friends or come on your own. Everyone is welcome.</p>
     </div>
   </div>
@@ -564,32 +581,47 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
   <div class="final__bg"></div>
   <div class="final__overlay"></div>
   <div class="container final__content">
-    <p class="eyebrow reveal">Reserve Your Seat</p>
+    <p class="eyebrow reveal">Get Your Tickets</p>
     <h2 class="final__title reveal">Your seat at the Shabbat table is waiting.</h2>
     <p class="final__text reveal">Join Jewish young adults from across St. Pete for a night of great people, meaningful tradition, and real connection.</p>
-    <a href="#" class="btn reveal" data-rsvp>Reserve Your Seat</a>
+    <a href="#" class="btn reveal" data-rsvp>Get Tickets</a>
     <p class="final__date reveal">Friday, August 7 &nbsp;·&nbsp; 7:00 PM</p>
   </div>
 </section>
 
 <!-- ============================================================
-     RSVP — embedded registration form
-     To swap the form, replace the iframe's src below.
+     RSVP — ticket drop announcement (form removed for now)
+     To bring the form back, restore the iframe here.
      ============================================================ -->
 <section class="rsvp" id="rsvp">
   <div class="container">
-    <p class="eyebrow section-eyebrow reveal" style="text-align:center">RSVP</p>
-    <h2 class="section-title reveal" style="text-align:center;margin-bottom:1rem;font-size:clamp(2rem,5vw,3.4rem)">Reserve your seat</h2>
-    <p class="lead reveal" style="text-align:center;margin:0 auto 2.5rem">Fill out the form below to save your place at the table. Come with friends or come on your own &mdash; everyone is welcome.</p>
-    <div class="rsvp__frame reveal">
-      <iframe
-        src="https://chabadsp.chabadms.com/api/Forms/getFormView?id=6ef53d51-2c73-4046-a553-d265463bf39d"
-        title="CYP Shabbat RSVP form"
-        loading="lazy"
-        width="100%"
-        height="2000"
-        frameborder="0"></iframe>
+    <p class="eyebrow section-eyebrow reveal" style="text-align:center">Tickets</p>
+    <h2 class="section-title reveal" style="text-align:center;margin-bottom:1rem;font-size:clamp(2rem,5vw,3.4rem)">Tickets drop Saturday night.</h2>
+    <p class="lead reveal" style="text-align:center;margin:0 auto 2.8rem">
+      Set a reminder. Tickets go live <strong style="color:var(--cream)">Saturday, July 25 at 10:00 PM</strong>, opening with a 24-hour flash sale. Seats are limited &mdash; the earlier you grab yours, the less you pay.
+    </p>
+
+    <div class="tiers reveal">
+      <div class="tier tier--flash">
+        <span class="tier__tag">24-Hour Flash Sale</span>
+        <span class="tier__price">$25</span>
+        <span class="tier__when">Saturday, July 25 &middot; 10:00 PM<br>for 24 hours only</span>
+      </div>
+      <div class="tier">
+        <span class="tier__tag">Regular</span>
+        <span class="tier__price">$35</span>
+        <span class="tier__when">After the flash sale ends</span>
+      </div>
+      <div class="tier">
+        <span class="tier__tag">Last Call</span>
+        <span class="tier__price">$50</span>
+        <span class="tier__when">Within 48 hours of the event</span>
+      </div>
     </div>
+
+    <p class="reveal" style="text-align:center;margin:2.4rem auto 0;color:var(--dim);font-size:.95rem">
+      Registration opens here Saturday night. Check back then to claim your seat.
+    </p>
   </div>
 </section>
 
