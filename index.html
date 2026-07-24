@@ -105,8 +105,10 @@ h1,h2,h3{font-family:var(--serif);color:var(--cream);font-weight:400;line-height
   padding:.9rem var(--gutter);
   border-bottom:1px solid var(--line);
 }
-.nav__logo{font-family:var(--serif);font-size:1.35rem;color:var(--cream);letter-spacing:.02em;display:flex;flex-direction:column;line-height:1}
-.nav__logo small{font-family:var(--sans);font-size:.55rem;letter-spacing:.34em;color:var(--dim);text-transform:uppercase;margin-top:.35rem}
+.nav__logo{display:inline-flex;align-items:center}
+.nav__logo img{height:46px;width:auto;display:block;transition:opacity .3s ease}
+.nav__logo:hover img{opacity:.82}
+.nav.scrolled .nav__logo img{height:40px;transition:height .4s ease,opacity .3s ease}
 .nav__links{display:flex;align-items:center;gap:2.2rem}
 .nav__links a{font-size:.78rem;letter-spacing:.12em;text-transform:uppercase;color:var(--soft);transition:color .25s}
 .nav__links a:hover{color:var(--cream)}
@@ -388,7 +390,7 @@ section{padding:var(--section-y) 0}
   .details__cta .btn{width:100%;text-align:center}
   /* bigger, easier menu button */
   .nav__toggle{padding:.6rem}
-  .nav__logo{font-size:1.2rem}
+  .nav__logo img{height:38px}
   /* tier cards a touch more compact */
   .tier{padding:1.8rem 1.2rem}
   .tier__price{font-size:3rem}
@@ -419,7 +421,9 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
      NAVIGATION
      ============================================================ -->
 <nav class="nav" id="nav">
-  <a href="#top" class="nav__logo">CYP St. Pete<small>Chabad Young Professionals</small></a>
+  <a href="https://www.chabadyoungsp.com" class="nav__logo" aria-label="Chabad Young Professionals of St. Pete — home">
+    <img src="images/logo.png" alt="Chabad Young Professionals of St. Pete">
+  </a>
   <div class="nav__links">
     <a href="#evening">The Evening</a>
     <a href="#experience">Experience</a>
