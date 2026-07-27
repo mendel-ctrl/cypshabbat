@@ -673,10 +673,12 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
 
     <div class="flash-banner reveal">
       <span class="flash-banner__dot"></span>
-      <span><strong>Flash sale on now</strong> &mdash; tickets just $25 for the next 24 hours, then $35 regular &middot; $50 within 48 hours of the event.</span>
+      <!-- These two messages swap automatically at the deadline set in the script below -->
+      <span id="flashMsg"><strong>Flash sale on now</strong> &mdash; tickets just $25 for the next 24 hours, then $35 regular &middot; $50 within 48 hours of the event.</span>
+      <span id="regularMsg" hidden><strong>Tickets are now $35</strong> &mdash; $50 within 48 hours of the event. Grab your seat below.</span>
     </div>
 
-    <p class="lead reveal" style="text-align:center;margin:0 auto 2.5rem">Fill out the form below to lock in the flash-sale price.</p>
+    <p class="lead reveal" style="text-align:center;margin:0 auto 2.5rem" id="rsvpLead">Fill out the form below to lock in the flash-sale price.</p>
 
     <div class="rsvp__frame reveal">
       <iframe
@@ -753,6 +755,34 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
 <script>
 (function(){
   "use strict";
+
+  /* ============================================================
+     FLASH SALE DEADLINE
+     At this moment, the banner switches from the $25 flash-sale
+     message to the $35 regular message automatically.
+     Set to Sunday, July 26, 2026, 10:15 PM Eastern.
+     (-04:00 = Eastern Daylight Time, which is in effect in July.)
+     To change it later, just edit the date string below.
+     ============================================================ */
+  var FLASH_DEADLINE = new Date("2026-07-26T22:15:00-04:00");
+
+  function updateTicketBanner(){
+    var flash = document.getElementById('flashMsg');
+    var regular = document.getElementById('regularMsg');
+    var lead = document.getElementById('rsvpLead');
+    if(!flash || !regular) return;
+    if(Date.now() >= FLASH_DEADLINE.getTime()){
+      flash.hidden = true;
+      regular.hidden = false;
+      if(lead) lead.textContent = "Fill out the form below to grab your seat.";
+    } else {
+      flash.hidden = false;
+      regular.hidden = true;
+    }
+  }
+  updateTicketBanner();
+  // Re-check every 30s so it flips live even if someone leaves the page open.
+  setInterval(updateTicketBanner, 30000);
 
   /* --- RSVP buttons scroll down to the embedded form section (#rsvp) --- */
   document.querySelectorAll('[data-rsvp]').forEach(function(el){
