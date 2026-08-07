@@ -468,7 +468,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
     <a href="#experience">Experience</a>
     <a href="#details">Details</a>
     <a href="#faq">FAQ</a>
-    <a href="#" class="nav__rsvp" data-rsvp>Tickets</a>
+    <a href="#" class="nav__rsvp" data-rsvp>Waitlist</a>
   </div>
   <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
     <span></span><span></span><span></span>
@@ -480,7 +480,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
   <a href="#experience">Experience</a>
   <a href="#details">Details</a>
   <a href="#faq">FAQ</a>
-  <a href="#" data-rsvp>Tickets</a>
+  <a href="#" data-rsvp>Waitlist</a>
 </div>
 
 <!-- ============================================================
@@ -504,7 +504,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
       <span>7:45 PM Shabbat Dinner</span>
     </div>
     <div class="hero__cta">
-      <a href="#" class="btn" data-rsvp>Get Tickets</a>
+      <a href="#" class="btn" data-rsvp>Join the Waitlist</a>
       <a href="#evening" class="text-link">Discover the Evening</a>
     </div>
   </div>
@@ -596,8 +596,8 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
       </dl>
     </div>
     <div class="details__cta reveal">
-      <a href="#" class="btn" data-rsvp>Get Tickets</a>
-      <p class="details__note">Come with friends or come on your own. Everyone is welcome.</p>
+      <a href="#" class="btn" data-rsvp>Join the Waitlist</a>
+      <p class="details__note">This event is sold out. Join the waitlist to be notified if a seat opens.</p>
     </div>
   </div>
 </section>
@@ -660,43 +660,31 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--teal);outline-offse
   <div class="final__bg"></div>
   <div class="final__overlay"></div>
   <div class="container final__content">
-    <p class="eyebrow reveal">Get Your Tickets</p>
-    <h2 class="final__title reveal">Your seat at the Shabbat table is waiting.</h2>
-    <p class="final__text reveal">Join Jewish young adults from across St. Pete for a night of great people, meaningful tradition, and real connection.</p>
-    <a href="#" class="btn reveal" data-rsvp>Get Tickets</a>
+    <p class="eyebrow reveal">Sold Out</p>
+    <h2 class="final__title reveal">Every seat at the Shabbat table is taken.</h2>
+    <p class="final__text reveal">This event is sold out. Join the waitlist and we&rsquo;ll reach out if a seat opens up.</p>
+    <a href="#" class="btn reveal" data-rsvp>Join the Waitlist</a>
     <p class="final__date reveal">Friday, August 7 &nbsp;·&nbsp; 7:00 PM</p>
   </div>
 </section>
 
 <!-- ============================================================
-     RSVP — registration form (flash sale live)
-     To swap the form, replace the iframe's src below.
+     RSVP — SOLD OUT (waitlist)
+     The event is sold out. To reopen registration later, restore
+     the embedded form iframe in place of the waitlist message.
      ============================================================ -->
 <section class="rsvp" id="rsvp">
   <div class="container">
-    <p class="eyebrow section-eyebrow reveal" style="text-align:center">Register Now</p>
-    <h2 class="section-title reveal" style="text-align:center;margin-bottom:1rem;font-size:clamp(2rem,5vw,3.4rem)">Reserve your seat</h2>
+    <p class="eyebrow section-eyebrow reveal" style="text-align:center">Sold Out</p>
+    <h2 class="section-title reveal" style="text-align:center;margin-bottom:1rem;font-size:clamp(2rem,5vw,3.4rem)">This event is sold out</h2>
 
-    <div class="flash-banner reveal">
-      <span class="flash-banner__dot"></span>
-      <!-- These two messages swap automatically at the deadline set in the script below -->
-      <span id="flashMsg" hidden><strong>Flash sale on now</strong> &mdash; tickets just $25 for the next 24 hours, then $35 regular &middot; $50 within 48 hours of the event.</span>
-      <span id="regularMsg"><strong>Tickets are $50 &mdash; the event is here.</strong> Grab your seat below before the doors open.</span>
-    </div>
-
-    <p class="member-note reveal" id="memberNote" hidden>&#10022; <a href="https://www.chabadyoungsp.com/chai" target="_blank" rel="noopener">Chai Club members</a> pay just $25 through August 5.</p>
-
-    <p class="lead reveal" style="text-align:center;margin:0 auto 2.5rem" id="rsvpLead">Fill out the form below to grab your seat.</p>
-
-    <div class="rsvp__frame reveal">
-      <iframe
-        src="https://chabadsp.chabadms.com/api/Forms/getFormView?id=6ef53d51-2c73-4046-a553-d265463bf39d"
-        title="CYP Shabbat RSVP form"
-        loading="lazy"
-        width="100%"
-        height="2000"
-        frameborder="0"></iframe>
-    </div>
+    <p class="lead reveal" style="text-align:center;margin:0 auto 1rem">
+      Thank you &mdash; every seat has been reserved.
+    </p>
+    <p class="lead reveal" style="text-align:center;margin:0 auto 2.5rem">
+      To join the waitlist, reach out to Rabbi Mendel at
+      <a href="tel:+19544788015" style="color:var(--teal);text-decoration:underline;text-underline-offset:2px">(954)&nbsp;478-8015</a>.
+    </p>
   </div>
 </section>
 
