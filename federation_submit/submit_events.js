@@ -1,0 +1,338 @@
+#!/usr/bin/env node
+/*
+ * Submit Chabad of St. Petersburg events to the Jewish Federation of Florida's
+ * Gulf Coast community calendar.
+ *
+ *   Form: https://www.jewishgulfcoast.org/calendar/submit  (reCAPTCHA v2 checkbox)
+ *
+ * Designed to run on a NORMAL machine with a VISIBLE (headed) Chromium window,
+ * on a residential connection, so reCAPTCHA usually passes on a single checkbox
+ * click. When it does throw an image/audio challenge, the run PAUSES and waits
+ * for YOU to solve it in the visible window, then continues. Progress is saved
+ * to submit_log.csv after every event so a re-run resumes instead of duplicating.
+ *
+ * Setup (once):
+ *   npm install playwright@1.56.1
+ *   npx playwright install chromium
+ *
+ * Run:
+ *   SUBMITTER_FIRST="Mendel" SUBMITTER_LAST="…" SUBMITTER_EMAIL="mendel@chabadsp.com" \
+ *   node submit_events.js
+ *
+ * Env vars:
+ *   SUBMITTER_FIRST / SUBMITTER_LAST / SUBMITTER_EMAIL  (required — the form
+ *        requires "Your Details"; used for submitter AND event contact)
+ *   HEADLESS=1        run without a window (NOT recommended — reCAPTCHA will block)
+ *   CAPTCHA_WAIT_MS   how long to wait for you to solve a challenge (default 300000 = 5 min)
+ *   START_AT / STOP_AT   optional num bounds, e.g. START_AT=1 STOP_AT=1 to do only event #1
+ *   USE_PROXY=1       route through $HTTPS_PROXY with TLS1.2 (only needed inside the
+ *                     Claude sandbox; leave unset on your own machine)
+ */
+const { chromium } = require('playwright');
+const fs = require('fs');
+const path = require('path');
+
+const DIR = __dirname;
+const CSV_IN = path.join(DIR, 'federation_events.csv');
+const LOG = path.join(DIR, 'submit_log.csv');
+const SHOTS = path.join(DIR, 'screenshots');
+const FORM_URL = 'https://www.jewishgulfcoast.org/calendar/submit';
+
+const SUBMITTER = {
+  first: process.env.SUBMITTER_FIRST || '',
+  last:  process.env.SUBMITTER_LAST  || '',
+  email: process.env.SUBMITTER_EMAIL || '',
+};
+const HEADLESS = process.env.HEADLESS === '1';
+const CAPTCHA_WAIT_MS = parseInt(process.env.CAPTCHA_WAIT_MS || '300000', 10);
+const START_AT = process.env.START_AT ? parseInt(process.env.START_AT, 10) : 1;
+const STOP_AT  = process.env.STOP_AT  ? parseInt(process.env.STOP_AT, 10)  : Infinity;
+const USE_PROXY = process.env.USE_PROXY === '1';
+
+// ---------- tiny RFC4180 CSV parser ----------
+function parseCSV(text) {
+  const rows = []; let row = [], field = '', i = 0, q = false;
+  while (i < text.length) {
+    const c = text[i];
+    if (q) {
+      if (c === '"') { if (text[i + 1] === '"') { field += '"'; i += 2; continue; } q = false; i++; continue; }
+      field += c; i++; continue;
+    }
+    if (c === '"') { q = true; i++; continue; }
+    if (c === ',') { row.push(field); field = ''; i++; continue; }
+    if (c === '\r') { i++; continue; }
+    if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+    field += c; i++;
+  }
+  if (field.length || row.length) { row.push(field); rows.push(row); }
+  return rows;
+}
+function readEvents() {
+  const rows = parseCSV(fs.readFileSync(CSV_IN, 'utf8')).filter(r => r.length > 1 && r.some(c => c.trim() !== ''));
+  const header = rows.shift().map(h => h.trim());
+  return rows.map(r => { const o = {}; header.forEach((h, idx) => o[h] = (r[idx] || '').trim()); return o; });
+}
+
+// ---------- log ----------
+function ensureLog() {
+  if (!fs.existsSync(LOG)) fs.writeFileSync(LOG, 'num,title,status,timestamp,note\n');
+}
+function submittedNums() {
+  ensureLog();
+  const rows = parseCSV(fs.readFileSync(LOG, 'utf8'));
+  rows.shift();
+  const done = new Set();
+  for (const r of rows) { if (r[0] && (r[2] || '').startsWith('submitted')) done.add(r[0].trim()); }
+  return done;
+}
+function csvCell(s) { s = String(s == null ? '' : s); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; }
+function appendLog(num, title, status, note) {
+  const line = [num, title, status, new Date().toISOString(), note || ''].map(csvCell).join(',') + '\n';
+  fs.appendFileSync(LOG, line);
+}
+
+// ---------- recurrence parsing ----------
+const DAY_WORDS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+function parseRepeats(s) {
+  // e.g. "Weekly on Tuesdays through July 27, 2027"
+  if (!s) return null;
+  const day = DAY_WORDS.find(d => new RegExp(d, 'i').test(s));
+  const m = s.match(/through\s+(.+)$/i);
+  const until = m ? m[1].trim() : '';
+  return { day, until };
+}
+
+// ---------- form helpers ----------
+async function setChosen(page, name, value) {
+  // Sets a native <select> value (backing a "chosen" widget) and fires change.
+  await page.evaluate(({ name, value }) => {
+    const sel = document.querySelector(`select[name="${name}"]`);
+    if (!sel) return;
+    sel.value = value;
+    sel.dispatchEvent(new Event('change', { bubbles: true }));
+    if (window.jQuery) { try { window.jQuery(sel).trigger('liszt:updated').trigger('chosen:updated'); } catch (e) {} }
+  }, { name, value });
+}
+async function fillText(page, name, value) {
+  const loc = page.locator(`[name="${name}"]`).first();
+  await loc.fill(value == null ? '' : String(value));
+}
+async function setDate(page, name, value) {
+  // fill and also set value directly, then blur/escape to dismiss any datepicker
+  const loc = page.locator(`[name="${name}"]`).first();
+  await loc.click();
+  await loc.fill('');
+  await loc.type(String(value), { delay: 15 });
+  await page.evaluate(({ name, value }) => {
+    const el = document.querySelector(`[name="${name}"]`);
+    if (el) { el.value = value; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); }
+  }, { name, value });
+  await page.keyboard.press('Escape').catch(() => {});
+}
+async function clickCustomCheckbox(page, byLabelText) {
+  // The Repeat / "I am the event contact" boxes are custom switchers; a label
+  // click runs their reveal logic, so use that.
+  const lab = page.locator(`label:has-text("${byLabelText}")`).first();
+  await lab.click();
+}
+async function forceCheckbox(page, name, checked) {
+  // For readonly/custom checkboxes (e.g. All Day): remove readonly and force state.
+  await page.evaluate(({ name, checked }) => {
+    const e = document.querySelector(`input[name="${name}"]`);
+    if (!e) return;
+    e.readOnly = false; e.removeAttribute('readonly');
+    if (e.checked !== checked) { e.checked = checked; e.dispatchEvent(new Event('change', { bubbles: true })); e.dispatchEvent(new Event('click', { bubbles: true })); }
+    const box = e.closest('.custom-checkbox'); if (box) box.classList.toggle('checked', checked);
+  }, { name, checked });
+}
+
+async function solveCaptchaFlow(page) {
+  // Click the "I'm not a robot" checkbox and wait for a token. If a challenge
+  // appears, keep waiting up to CAPTCHA_WAIT_MS for a human to solve it.
+  const anchor = page.frames().find(f => f.url().includes('/recaptcha/api2/anchor'));
+  if (!anchor) throw new Error('reCAPTCHA anchor frame not found');
+  await anchor.locator('#recaptcha-anchor').click({ delay: 100 });
+
+  const deadline = Date.now() + CAPTCHA_WAIT_MS;
+  let warned = false;
+  while (Date.now() < deadline) {
+    await page.waitForTimeout(2000);
+    const token = await page.evaluate(() => {
+      const t = document.querySelector('textarea[name="g-recaptcha-response"]');
+      return t ? t.value : '';
+    });
+    if (token && token.length > 20) return { ok: true };
+    const challenge = await page.evaluate(() => [...document.querySelectorAll('iframe')]
+      .filter(f => f.src.includes('/recaptcha/api2/bframe'))
+      .some(f => { const r = f.getBoundingClientRect(); return r.width > 50 && r.height > 50 && r.top > -800; }));
+    if (challenge && !warned) {
+      warned = true;
+      console.log('   ⚠️  reCAPTCHA image/audio challenge shown — solve it in the browser window; waiting…');
+      if (HEADLESS) return { ok: false, reason: 'captcha-challenge-headless' };
+    }
+  }
+  return { ok: false, reason: 'captcha-timeout' };
+}
+
+async function fillEvent(page, ev) {
+  await fillText(page, 'title', ev.title);
+  await setDate(page, 'date_start', ev.start_date);
+  await setDate(page, 'date_end', ev.end_date);
+
+  if ((ev.all_day || '').toLowerCase() === 'yes') {
+    // All-Day input is readonly by default; drop readonly then real-click its box.
+    await page.evaluate(() => {
+      const e = document.querySelector('input[name="all_day"]');
+      if (!e) return; e.readOnly = false; e.removeAttribute('readonly');
+      e.closest('.custom-checkbox')?.classList.remove('readonly');
+    });
+    const already = await page.$eval('input[name="all_day"]', e => e.checked).catch(() => false);
+    if (!already) await page.locator('label.all-day .custom-checkbox').first().click();
+    await page.waitForTimeout(300);
+    // toggling All-Day clears the dates and disables the end date (single-day
+    // all-day); re-apply the start, and the end only if it stays enabled.
+    await setDate(page, 'date_start', ev.start_date);
+    const endUsable = await page.evaluate(() => { const e = document.querySelector('[name="date_end"]'); if (!e) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && !e.disabled; });
+    if (endUsable) await setDate(page, 'date_end', ev.end_date);
+  }
+
+  const rep = parseRepeats(ev.repeats);
+  if (rep && rep.day) {
+    const before = await page.$eval('input[name="use_recurrence"]', e => e.checked).catch(() => false);
+    if (!before) await clickCustomCheckbox(page, 'This Event will Repeat');
+    await page.waitForTimeout(500);
+    await setChosen(page, 'recurrence_frequency', 'WEEKLY'); // repeat every 1 week
+    await fillText(page, 'recurrence_interval', '1');
+    await page.waitForTimeout(400);
+    const DAY_ABBR = { Sunday: 'SU', Monday: 'MO', Tuesday: 'TU', Wednesday: 'WE', Thursday: 'TH', Friday: 'FR', Saturday: 'SA' };
+    const want = DAY_ABBR[rep.day];
+    // real-click "On Certain Days" then the weekday box (targeted by value to
+    // avoid the identical "On Additional Days" weekday labels below it)
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const noDaysChecked = await page.$eval('input[name="on_anniversary"][value="no_days"]', e => e.checked).catch(() => false);
+      if (!noDaysChecked) await page.locator('label.on-days .custom-radio').first().click().catch(() => {});
+      await page.waitForTimeout(200);
+      const dayChecked = await page.$eval(`input[name="recurrence_days[]"][value="${want}"]`, e => e.checked).catch(() => false);
+      if (!dayChecked) {
+        await page.locator(`input[name="recurrence_days[]"][value="${want}"]`)
+          .locator('xpath=ancestor::div[contains(@class,"custom-checkbox")]').first().click().catch(() => {});
+      }
+      await page.waitForTimeout(200);
+      const ok = await page.$eval(`input[name="recurrence_days[]"][value="${want}"]`, e => e.checked).catch(() => false);
+      if (ok) break;
+    }
+    if (rep.until) await setDate(page, 'recurrence_repeat_until', rep.until);
+  }
+
+  await fillText(page, 'body', ev.description);
+
+  // Location
+  await fillText(page, 'location_description', ev.location_name);
+  await fillText(page, 'location_address1', ev.address);
+  await fillText(page, 'location_city', ev.city);
+  await fillText(page, 'location_zip', ev.zip);
+  await setChosen(page, 'location_state', 'FL');
+  await setChosen(page, 'location_country', 'US');
+
+  // Your Details (required) + reuse as event contact
+  await fillText(page, 'submitter_first_name', SUBMITTER.first);
+  await fillText(page, 'submitter_last_name', SUBMITTER.last);
+  await fillText(page, 'submitter_email', SUBMITTER.email);
+  const contactChecked = await page.$eval('input[name="submitter_is_contact"]', e => e.checked).catch(() => false);
+  if (!contactChecked) { await clickCustomCheckbox(page, 'I am the event contact'); }
+  await page.waitForTimeout(300);
+  // If contact fields are still present/required, fill them too.
+  const contactVisible = await page.evaluate(() => {
+    const e = document.querySelector('[name="contact_first_name"]');
+    if (!e) return false; const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0;
+  });
+  if (contactVisible) {
+    await fillText(page, 'contact_first_name', SUBMITTER.first);
+    await fillText(page, 'contact_last_name', SUBMITTER.last);
+    await fillText(page, 'contact_email', SUBMITTER.email);
+  }
+}
+
+async function detectSuccess(page) {
+  await page.waitForTimeout(1500);
+  const info = await page.evaluate(() => ({
+    url: location.href,
+    text: document.body.innerText.slice(0, 4000).toLowerCase(),
+  }));
+  const hit = /(thank you|thank-you|submitted for review|has been submitted|will be reviewed|received your|success)/i.test(info.text);
+  const errs = await page.evaluate(() => [...document.querySelectorAll('.error, .errors, .alert-danger, [class*="error"]')]
+    .map(e => (e.innerText || '').trim()).filter(Boolean).slice(0, 6));
+  return { hit, url: info.url, errs };
+}
+
+async function main() {
+  if (!SUBMITTER.first || !SUBMITTER.last || !SUBMITTER.email) {
+    console.error('ERROR: set SUBMITTER_FIRST, SUBMITTER_LAST, SUBMITTER_EMAIL (the form requires "Your Details").');
+    process.exit(2);
+  }
+  fs.mkdirSync(SHOTS, { recursive: true });
+  const events = readEvents();
+  const done = submittedNums();
+  console.log(`Loaded ${events.length} events. Already submitted: ${done.size}. Headless=${HEADLESS}`);
+
+  const launchArgs = ['--no-sandbox'];
+  const launchOpts = { headless: HEADLESS, args: launchArgs };
+  if (USE_PROXY && process.env.HTTPS_PROXY) { launchOpts.proxy = { server: process.env.HTTPS_PROXY }; launchArgs.push('--ssl-version-max=tls1.2'); }
+  const browser = await chromium.launch(launchOpts);
+  const ctx = await browser.newContext({ ignoreHTTPSErrors: USE_PROXY, viewport: { width: 1400, height: 1600 } });
+  const page = await ctx.newPage();
+
+  let ok = 0, err = 0, processed = 0;
+  for (const ev of events) {
+    const num = ev.num;
+    if (+num < START_AT || +num > STOP_AT) continue;
+    if (done.has(num)) { continue; }
+    processed++;
+    console.log(`\n[${num}] ${ev.title}`);
+    try {
+      await page.goto(FORM_URL, { waitUntil: 'networkidle', timeout: 60000 });
+      await page.waitForTimeout(1500);
+      await fillEvent(page, ev);
+
+      const cap = await solveCaptchaFlow(page);
+      if (!cap.ok) {
+        appendLog(num, ev.title, 'paused: ' + cap.reason, 'progress saved; re-run to resume at this event');
+        console.log(`   ⏸  PAUSED on event ${num}: ${cap.reason}. Nothing submitted for this row.`);
+        break;
+      }
+
+      // Submit (the form's Submit button, not the site Search button)
+      await page.evaluate(() => {
+        const btns = [...document.querySelectorAll('input[type=submit], button[type=submit]')];
+        const b = btns.find(x => /submit/i.test(x.value || x.innerText || '') && !/search/i.test(x.value || x.innerText || ''));
+        if (b) b.click();
+      });
+      const res = await detectSuccess(page);
+      const shot = path.join(SHOTS, `event_${String(num).padStart(3, '0')}.png`);
+      await page.screenshot({ path: shot, fullPage: true });
+
+      if (res.hit) {
+        ok++; appendLog(num, ev.title, 'submitted', ev.notes ? 'FLAGGED: ' + ev.notes : '');
+        console.log(`   ✅ submitted (${res.url})  shot=${path.basename(shot)}`);
+      } else {
+        err++; appendLog(num, ev.title, 'error: no success message', 'errs=' + JSON.stringify(res.errs).slice(0, 180));
+        console.log(`   ❌ no clear success. url=${res.url} errs=${JSON.stringify(res.errs).slice(0,180)}`);
+        console.log(`      (event #1 must clearly succeed before looping — stopping for review)`);
+        if (num == 1 || processed === 1) break;
+      }
+    } catch (e) {
+      err++; appendLog(num, ev.title, 'error: ' + e.message.split('\n')[0].slice(0, 120), '');
+      console.log(`   ❌ error: ${e.message.split('\n')[0]}`);
+      if (num == 1 || processed === 1) break;
+    }
+    if ((ok + err) % 10 === 0) console.log(`--- progress: ${ok} submitted, ${err} errored ---`);
+    await page.waitForTimeout(2000 + Math.floor(Math.random() * 2000)); // 2–4s
+  }
+
+  console.log(`\nDONE. submitted=${ok} errored=${err}. Log: ${LOG}`);
+  await browser.close();
+}
+if (require.main === module) {
+  main().catch(e => { console.error('FATAL', e); process.exit(1); });
+}
+module.exports = { readEvents, fillEvent, parseRepeats, SUBMITTER };
