@@ -26,11 +26,14 @@ npm install playwright@1.56.1
 npx playwright install chromium
 ```
 
+The submitter/contact identity is pre-filled as **Chabad Team /
+Info@chabadsp.com** (used for both "Your Details" and the event contact). No
+env vars needed unless you want to override it.
+
 ## 2. Prove event #1 first (do this before the full run)
 
 ```bash
-SUBMITTER_FIRST="First" SUBMITTER_LAST="Last" SUBMITTER_EMAIL="you@example.org" \
-  START_AT=1 STOP_AT=1 node submit_events.js
+START_AT=1 STOP_AT=1 node submit_events.js
 ```
 
 A Chromium window opens and fills event #1. Click the reCAPTCHA checkbox if it's
@@ -42,8 +45,7 @@ succeeded.**
 ## 3. Run the rest
 
 ```bash
-SUBMITTER_FIRST="First" SUBMITTER_LAST="Last" SUBMITTER_EMAIL="you@example.org" \
-  node submit_events.js
+node submit_events.js
 ```
 
 It processes every remaining row in order, ~2–4s apart, pausing for you on any

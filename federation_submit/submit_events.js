@@ -39,9 +39,9 @@ const SHOTS = path.join(DIR, 'screenshots');
 const FORM_URL = 'https://www.jewishgulfcoast.org/calendar/submit';
 
 const SUBMITTER = {
-  first: process.env.SUBMITTER_FIRST || '',
-  last:  process.env.SUBMITTER_LAST  || '',
-  email: process.env.SUBMITTER_EMAIL || '',
+  first: process.env.SUBMITTER_FIRST || 'Chabad',
+  last:  process.env.SUBMITTER_LAST  || 'Team',
+  email: process.env.SUBMITTER_EMAIL || 'Info@chabadsp.com',
 };
 const HEADLESS = process.env.HEADLESS === '1';
 const CAPTCHA_WAIT_MS = parseInt(process.env.CAPTCHA_WAIT_MS || '300000', 10);
