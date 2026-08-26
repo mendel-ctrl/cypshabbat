@@ -152,38 +152,73 @@ async function forceCheckbox(page, name, checked) {
   }, { name, checked });
 }
 
-async function solveCaptchaFlow(page) {
-  // Click the "I'm not a robot" checkbox and wait for a token. If a challenge
-  // appears, keep waiting up to CAPTCHA_WAIT_MS for a human to solve it.
-  // bring the reCAPTCHA widget into view so any challenge is visible to a human
-  await page.evaluate(() => {
+// safe page.evaluate: returns fallback if the context was destroyed by a navigation
+async function safeEval(page, fn, fallback) {
+  try { return await page.evaluate(fn); } catch (e) { return fallback; }
+}
+
+// Handle the reCAPTCHA and submit the form. Tolerant of the page navigating at
+// any moment (e.g. the human clicks Submit themselves). Returns a status object.
+async function solveCaptchaAndSubmit(page) {
+  await safeEval(page, () => {
     const el = document.querySelector('.recaptcha-element, .g-recaptcha, [data-sitekey]');
     if (el) el.scrollIntoView({ block: 'center' });
   });
   await page.waitForTimeout(400);
   const anchor = page.frames().find(f => f.url().includes('/recaptcha/api2/anchor'));
-  if (!anchor) throw new Error('reCAPTCHA anchor frame not found');
-  await anchor.locator('#recaptcha-anchor').click({ delay: 100 });
+  if (anchor) { await anchor.locator('#recaptcha-anchor').click({ delay: 100 }).catch(() => {}); }
 
   const deadline = Date.now() + CAPTCHA_WAIT_MS;
   let warned = false;
   while (Date.now() < deadline) {
-    await page.waitForTimeout(2000);
-    const token = await page.evaluate(() => {
-      const t = document.querySelector('textarea[name="g-recaptcha-response"]');
-      return t ? t.value : '';
-    });
-    if (token && token.length > 20) return { ok: true };
-    const challenge = await page.evaluate(() => [...document.querySelectorAll('iframe')]
+    await page.waitForTimeout(1500);
+    // If the form is gone (navigated / submitted), confirm the outcome.
+    const state = await safeEval(page, () => ({
+      onForm: !!document.querySelector('input[name="title"]'),
+      token: (document.querySelector('textarea[name="g-recaptcha-response"]') || {}).value || '',
+    }), null);
+    if (state === null) return await confirmOutcome(page);      // context destroyed by navigation
+    if (!state.onForm) return await confirmOutcome(page);       // already left the form
+    if (state.token && state.token.length > 20) {
+      // reCAPTCHA satisfied — submit for the user, tolerate the navigation
+      await Promise.all([
+        page.waitForNavigation({ timeout: 25000 }).catch(() => {}),
+        safeEval(page, () => {
+          const b = [...document.querySelectorAll('input[type=submit], button[type=submit]')]
+            .find(x => /submit/i.test(x.value || x.innerText || '') && !/search/i.test(x.value || x.innerText || ''));
+          if (b) b.click();
+        }),
+      ]);
+      return await confirmOutcome(page);
+    }
+    const challenge = await safeEval(page, () => [...document.querySelectorAll('iframe')]
       .filter(f => f.src.includes('/recaptcha/api2/bframe'))
-      .some(f => { const r = f.getBoundingClientRect(); return r.width > 50 && r.height > 50 && r.top > -800; }));
+      .some(f => { const r = f.getBoundingClientRect(); return r.width > 50 && r.height > 50 && r.top > -800; }), false);
     if (challenge && !warned) {
       warned = true;
-      console.log('   ⚠️  reCAPTCHA image/audio challenge shown — solve it in the browser window; waiting…');
-      if (HEADLESS) return { ok: false, reason: 'captcha-challenge-headless' };
+      console.log('   ⚠️  reCAPTCHA puzzle shown — solve it in the window. The script submits for you; do NOT click Submit yourself.');
+      if (HEADLESS) return { status: 'paused', detail: 'captcha-challenge-headless' };
     }
   }
-  return { ok: false, reason: 'captcha-timeout' };
+  return { status: 'paused', detail: 'captcha-timeout' };
+}
+
+// After a submit/navigation, decide whether it went through.
+async function confirmOutcome(page) {
+  await page.waitForLoadState('domcontentloaded', { timeout: 15000 }).catch(() => {});
+  await page.waitForTimeout(1500);
+  const info = await safeEval(page, () => ({
+    url: location.href,
+    text: document.body.innerText.slice(0, 5000),
+    stillForm: !!document.querySelector('input[name="title"]'),
+    errs: [...document.querySelectorAll('.error, .errors, .alert-danger, [class*="error"]')]
+      .map(e => (e.innerText || '').trim()).filter(Boolean).slice(0, 6),
+  }), { url: '', text: '', stillForm: false, errs: [] });
+  const hit = /(thank you|thank\-you|submitted for review|has been submitted|will be reviewed|received your|your (event|submission)|success|pending approval)/i.test(info.text);
+  const leftFormUrl = info.url && !/\/calendar\/submit\/?$/.test(info.url);
+  if (hit) return { status: 'submitted', detail: 'confirmation message', url: info.url };
+  if (leftFormUrl && !info.stillForm) return { status: 'submitted', detail: 'navigated to ' + info.url, url: info.url };
+  return { status: 'unknown', detail: 'no clear confirmation', url: info.url, errs: info.errs };
 }
 
 async function fillEvent(page, ev) {
@@ -265,18 +300,6 @@ async function fillEvent(page, ev) {
   }
 }
 
-async function detectSuccess(page) {
-  await page.waitForTimeout(1500);
-  const info = await page.evaluate(() => ({
-    url: location.href,
-    text: document.body.innerText.slice(0, 4000).toLowerCase(),
-  }));
-  const hit = /(thank you|thank-you|submitted for review|has been submitted|will be reviewed|received your|success)/i.test(info.text);
-  const errs = await page.evaluate(() => [...document.querySelectorAll('.error, .errors, .alert-danger, [class*="error"]')]
-    .map(e => (e.innerText || '').trim()).filter(Boolean).slice(0, 6));
-  return { hit, url: info.url, errs };
-}
-
 async function main() {
   if (!SUBMITTER.first || !SUBMITTER.last || !SUBMITTER.email) {
     console.error('ERROR: set SUBMITTER_FIRST, SUBMITTER_LAST, SUBMITTER_EMAIL (the form requires "Your Details").');
@@ -308,36 +331,27 @@ async function main() {
       await page.waitForTimeout(1500);
       await fillEvent(page, ev);
 
-      const cap = await solveCaptchaFlow(page);
-      if (!cap.ok) {
-        appendLog(num, ev.title, 'paused: ' + cap.reason, 'progress saved; re-run to resume at this event');
-        console.log(`   ⏸  PAUSED on event ${num}: ${cap.reason}. Nothing submitted for this row.`);
-        break;
-      }
-
-      // Submit (the form's Submit button, not the site Search button)
-      await page.evaluate(() => {
-        const btns = [...document.querySelectorAll('input[type=submit], button[type=submit]')];
-        const b = btns.find(x => /submit/i.test(x.value || x.innerText || '') && !/search/i.test(x.value || x.innerText || ''));
-        if (b) b.click();
-      });
-      const res = await detectSuccess(page);
+      const res = await solveCaptchaAndSubmit(page);
       const shot = path.join(SHOTS, `event_${String(num).padStart(3, '0')}.png`);
-      await page.screenshot({ path: shot, fullPage: true });
+      await page.screenshot({ path: shot, fullPage: true }).catch(() => {});
 
-      if (res.hit) {
+      if (res.status === 'submitted') {
         ok++; appendLog(num, ev.title, 'submitted', ev.notes ? 'FLAGGED: ' + ev.notes : '');
-        console.log(`   ✅ submitted (${res.url})  shot=${path.basename(shot)}`);
+        console.log(`   ✅ submitted (${res.detail})  shot=${path.basename(shot)}`);
+      } else if (res.status === 'paused') {
+        appendLog(num, ev.title, 'paused: ' + res.detail, 'progress saved; re-run to resume at this event');
+        console.log(`   ⏸  PAUSED on event ${num}: ${res.detail}. Nothing submitted for this row.`);
+        break;
       } else {
-        err++; appendLog(num, ev.title, 'error: no success message', 'errs=' + JSON.stringify(res.errs).slice(0, 180));
-        console.log(`   ❌ no clear success. url=${res.url} errs=${JSON.stringify(res.errs).slice(0,180)}`);
-        console.log(`      (event #1 must clearly succeed before looping — stopping for review)`);
-        if (num == 1 || processed === 1) break;
+        err++; appendLog(num, ev.title, 'error: no confirmation', 'url=' + (res.url || '') + ' errs=' + JSON.stringify(res.errs || []).slice(0, 160));
+        console.log(`   ❌ no clear confirmation. url=${res.url} errs=${JSON.stringify(res.errs || []).slice(0,160)}`);
+        console.log(`      Stopping so you can check this one before continuing (screenshot: ${path.basename(shot)}).`);
+        break;
       }
     } catch (e) {
       err++; appendLog(num, ev.title, 'error: ' + e.message.split('\n')[0].slice(0, 120), '');
       console.log(`   ❌ error: ${e.message.split('\n')[0]}`);
-      if (num == 1 || processed === 1) break;
+      break;
     }
     if ((ok + err) % 10 === 0) console.log(`--- progress: ${ok} submitted, ${err} errored ---`);
     await page.waitForTimeout(2000 + Math.floor(Math.random() * 2000)); // 2–4s
