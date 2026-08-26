@@ -4,6 +4,11 @@ Submits Chabad of St. Petersburg's 102 events to the Jewish Federation of
 Florida's Gulf Coast community calendar:
 **https://www.jewishgulfcoast.org/calendar/submit**
 
+**Scope:** by default the script now runs `federation_events_remaining.csv` —
+the **59 events not yet on the calendar** (the 43 already posted are excluded, so
+nothing is duplicated). The full 102-row `federation_events.csv` is still here as
+a backup; set `CSV_FILE=federation_events.csv` to use it.
+
 The form is protected by **reCAPTCHA v2**. This script is built to run on **your
 own computer** with a **visible browser window** on your **home/office internet**,
 where reCAPTCHA almost always passes on a single checkbox click. When it does
@@ -93,11 +98,9 @@ command anytime to resume.
 
 All other fields are left blank, per the instructions.
 
-## Rows to double-check afterward (flagged in the CSV `notes` column)
+## Rows to double-check afterward (flagged, still in this remaining run)
 
 - **#8 Sukkot Under the Stars** — time guessed 7:00 PM (none in email).
-- **#27 Kiddush & Cocktails (Nov 20)** — time guessed 6:00 PM (none in email).
-- **#46 The S. Pete Jewish Experience** — description copied verbatim (has a typo).
 - **#96 Camp Gan Israel Begins** — all-day, no time.
 - **#98 Camp Gan Israel Ends** — all-day, no time.
 - **#100 Men's Tanya Class** — CSV lists the Chabad Center address, but the note

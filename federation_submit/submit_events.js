@@ -33,7 +33,13 @@ const fs = require('fs');
 const path = require('path');
 
 const DIR = __dirname;
-const CSV_IN = path.join(DIR, 'federation_events.csv');
+// Use the remaining-only list if present (events not yet on the calendar),
+// otherwise fall back to the full list. Override with CSV_FILE=... if needed.
+const CSV_IN = process.env.CSV_FILE
+  ? path.join(DIR, process.env.CSV_FILE)
+  : (fs.existsSync(path.join(DIR, 'federation_events_remaining.csv'))
+      ? path.join(DIR, 'federation_events_remaining.csv')
+      : path.join(DIR, 'federation_events.csv'));
 const LOG = path.join(DIR, 'submit_log.csv');
 const SHOTS = path.join(DIR, 'screenshots');
 const FORM_URL = 'https://www.jewishgulfcoast.org/calendar/submit';
