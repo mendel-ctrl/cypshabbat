@@ -17,6 +17,18 @@ it pauses, just run it again and it **resumes** where it left off (it skips any
 `num` already marked `submitted`). A full-page screenshot of each event is saved
 to `screenshots/`.
 
+## Easiest way — double-click launcher
+
+- **macOS:** double-click **`run.command`** (right-click → Open the first time, to
+  clear the "unidentified developer" prompt).
+- **Windows:** double-click **`run.bat`**.
+- **Linux:** run **`./run.sh`**.
+
+It installs what's needed on first run, then asks whether to do a single test
+event (#1) or the full batch. That's all — the identity and every field are
+already baked in. The manual steps below do the same thing if you prefer a
+terminal.
+
 ## 1. One-time setup
 
 Install Node.js 18+ (https://nodejs.org), then in this folder:
