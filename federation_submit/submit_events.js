@@ -149,6 +149,12 @@ async function forceCheckbox(page, name, checked) {
 async function solveCaptchaFlow(page) {
   // Click the "I'm not a robot" checkbox and wait for a token. If a challenge
   // appears, keep waiting up to CAPTCHA_WAIT_MS for a human to solve it.
+  // bring the reCAPTCHA widget into view so any challenge is visible to a human
+  await page.evaluate(() => {
+    const el = document.querySelector('.recaptcha-element, .g-recaptcha, [data-sitekey]');
+    if (el) el.scrollIntoView({ block: 'center' });
+  });
+  await page.waitForTimeout(400);
   const anchor = page.frames().find(f => f.url().includes('/recaptcha/api2/anchor'));
   if (!anchor) throw new Error('reCAPTCHA anchor frame not found');
   await anchor.locator('#recaptcha-anchor').click({ delay: 100 });
@@ -275,11 +281,13 @@ async function main() {
   const done = submittedNums();
   console.log(`Loaded ${events.length} events. Already submitted: ${done.size}. Headless=${HEADLESS}`);
 
-  const launchArgs = ['--no-sandbox'];
+  const launchArgs = ['--no-sandbox', '--start-maximized'];
   const launchOpts = { headless: HEADLESS, args: launchArgs };
   if (USE_PROXY && process.env.HTTPS_PROXY) { launchOpts.proxy = { server: process.env.HTTPS_PROXY }; launchArgs.push('--ssl-version-max=tls1.2'); }
   const browser = await chromium.launch(launchOpts);
-  const ctx = await browser.newContext({ ignoreHTTPSErrors: USE_PROXY, viewport: { width: 1400, height: 1600 } });
+  // viewport:null → use the real (maximized) window size so nothing sits below
+  // the screen edge; the reCAPTCHA and Submit button stay reachable.
+  const ctx = await browser.newContext({ ignoreHTTPSErrors: USE_PROXY, viewport: null });
   const page = await ctx.newPage();
 
   let ok = 0, err = 0, processed = 0;
