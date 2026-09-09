@@ -164,6 +164,12 @@
   }
   .form-card iframe{width:100%;border:0;border-radius:16px;display:block;background:var(--cream-soft);min-height:1200px;}
 
+  /* Give the RSVP iframe more width on phones by trimming side padding */
+  @media(max-width:600px){
+    .form-sec .wrap{padding:0 10px;}
+    .form-card{padding:8px;}
+  }
+
   /* ---------- footer ---------- */
   footer{background:var(--blue-deep);padding:46px 0;text-align:center;position:relative;z-index:2;}
   footer .fbrand{font-family:'Playfair Display',serif;font-weight:900;font-size:26px;color:var(--cream);}
