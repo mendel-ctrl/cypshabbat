@@ -149,38 +149,19 @@ h1,h2,h3{font-family:var(--serif);color:var(--ink);font-weight:600;line-height:1
 /* ============================================================
    HERO
    ============================================================ */
-.hero{
-  position:relative;overflow:hidden;
-  padding:9rem 0 3.5rem;
-}
-.hero__inner{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(1.5rem,4vw,3.5rem);align-items:center}
-.hero__eyebrow{margin-bottom:1.6rem;color:var(--teal)}
-.hero__title{
-  font-size:clamp(3.2rem, 9vw, 6.6rem);
-  line-height:.94;letter-spacing:-.01em;
-  color:var(--ink);font-weight:300;
-  margin-bottom:1.1rem;
-}
-.hero__title strong{font-weight:700}
-.hero__sub{
-  font-family:var(--serif);font-style:italic;font-weight:400;
-  font-size:clamp(1.3rem,3vw,2rem);color:var(--ink-soft);
-  line-height:1.25;margin-bottom:1.8rem;
-}
-.hero__sub em{color:var(--rust);font-style:italic}
+.hero{position:relative;overflow:hidden;padding:0}
+/* Full-bleed banner across the very top of the page */
+.hero__banner{width:100%;padding-top:clamp(4.5rem,7vw,6rem)}
+.hero__banner img{width:100%;height:auto;display:block}
+.hero__intro{text-align:center;padding-top:clamp(1.6rem,4vw,2.6rem)}
+.hero__eyebrow{margin-bottom:1.2rem;color:var(--teal)}
 .hero__meta{
-  display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;align-items:center;
+  display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;align-items:center;justify-content:center;
   font-size:.9rem;letter-spacing:.04em;color:var(--ink);
-  margin-bottom:2rem;
+  margin-bottom:1.8rem;
 }
 .hero__meta .dot{color:var(--rust)}
-.hero__cta{display:flex;flex-wrap:wrap;align-items:center;gap:1.2rem}
-.hero__art{position:relative}
-.hero__art img{
-  width:100%;border-radius:14px;
-  box-shadow:0 24px 60px rgba(44,46,42,.18);
-  border:1px solid var(--line-soft);
-}
+.hero__cta{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1.2rem}
 
 /* Divider rule */
 .rule{height:1px;background:var(--line);border:0;margin:0}
@@ -312,8 +293,6 @@ section{padding:var(--section-y) 0}
 @media (max-width:900px){
   .nav__links{display:none}
   .nav__toggle{display:flex}
-  .hero__inner{grid-template-columns:1fr}
-  .hero__art{order:-1;max-width:520px}
   .tiers{grid-template-columns:1fr;max-width:420px}
   .session{grid-template-columns:1fr;gap:.6rem}
   .session__right{text-align:left;min-width:0}
@@ -323,9 +302,8 @@ section{padding:var(--section-y) 0}
 }
 @media (max-width:560px){
   .btn{display:block;padding:1.05rem 1.5rem}
-  .hero__cta{flex-direction:column;align-items:stretch}
+  .hero__cta{flex-direction:column;align-items:stretch;max-width:340px;margin:0 auto}
   .hero__cta .btn{text-align:center}
-  .hero{padding-top:7.5rem}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
@@ -368,23 +346,19 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rust);outline-offse
      HERO
      ============================================================ -->
 <header class="hero" id="top">
-  <div class="container hero__inner">
-    <div>
-      <p class="eyebrow hero__eyebrow">CYP Dinner &amp; Discussion</p>
-      <h1 class="hero__title">Fascinating <strong>Facts</strong></h1>
-      <p class="hero__sub">Exploring the <em>Myths and Mysteries</em> of Judaism</p>
-      <div class="hero__meta">
-        <span>Four-part series</span>
-        <span class="dot">&middot;</span>
-        <span>Dinner included</span>
-      </div>
-      <div class="hero__cta">
-        <a href="#register" class="btn" data-reg>Register Now</a>
-        <a href="#sessions" class="btn btn--ghost">See the Sessions</a>
-      </div>
+  <div class="hero__banner">
+    <img src="images/banner.webp" alt="Fascinating Facts — Exploring the Myths and Mysteries of Judaism">
+  </div>
+  <div class="container hero__intro">
+    <p class="eyebrow hero__eyebrow">CYP Dinner &amp; Discussion</p>
+    <div class="hero__meta">
+      <span>Four-part series</span>
+      <span class="dot">&middot;</span>
+      <span>Dinner included</span>
     </div>
-    <div class="hero__art reveal">
-      <img src="images/banner.webp" alt="Fascinating Facts illustration: a serpent and apple, scales of justice, an eye, and wings of an ancient book">
+    <div class="hero__cta">
+      <a href="#register" class="btn" data-reg>Register Now</a>
+      <a href="#sessions" class="btn btn--ghost">See the Sessions</a>
     </div>
   </div>
 </header>
