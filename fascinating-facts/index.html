@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<!-- ============================================================
+     SEO + SOCIAL SHARING METADATA
+     ============================================================ -->
+<title>Fascinating Facts &mdash; Dinner &amp; Discussion | CYP St. Pete</title>
+<meta name="description" content="Fascinating Facts: Exploring the Myths and Mysteries of Judaism. A four-part Dinner & Discussion series with Chabad Young Professionals of St. Pete. $10 per discussion.">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CYP St. Pete">
+<meta property="og:title" content="Fascinating Facts — Exploring the Myths and Mysteries of Judaism">
+<meta property="og:description" content="A four-part Dinner & Discussion series with Chabad Young Professionals of St. Pete. Just $10 per discussion.">
+<meta property="og:url" content="https://mendel-ctrl.github.io/cypshabbat/fascinating-facts/">
+<meta property="og:image" content="https://mendel-ctrl.github.io/cypshabbat/fascinating-facts/images/banner.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Fascinating Facts — Myths and Mysteries of Judaism">
+<meta name="twitter:description" content="A four-part Dinner & Discussion series with CYP St. Pete. $10 per discussion.">
+<meta name="twitter:image" content="https://mendel-ctrl.github.io/cypshabbat/fascinating-facts/images/banner.webp">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500;1,9..144,600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+/* ============================================================
+   DESIGN TOKENS — colors taken from the "Fascinating Facts"
+   course artwork. Change core colors and fonts here.
+   ============================================================ */
+:root{
+  --paper:#f4ecdd;        /* warm cream paper background */
+  --paper-2:#efe5d3;      /* slightly deeper cream panel */
+  --ink:#2c2e2a;          /* deep charcoal-green (headings/text) */
+  --ink-soft:#54554e;     /* muted body text */
+  --dim:#8a8878;          /* labels / captions */
+  --rust:#b0533b;         /* terracotta accent (titles, dates) */
+  --teal:#2f6a72;         /* deep teal from the collage */
+  --gold:#c69a3a;         /* mustard gold */
+  --line:rgba(44,46,42,.18);
+  --line-soft:rgba(44,46,42,.10);
+
+  --serif:'Fraunces', Georgia, 'Times New Roman', serif;
+  --sans:'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+
+  --section-y:clamp(4rem, 9vw, 8rem);
+  --gutter:clamp(1.25rem, 5vw, 4.5rem);
+
+  /* ============================================================
+     REGISTRATION FORM
+     The "Register" buttons scroll to the embedded form (#register).
+     To change the form itself, edit the iframe "src" in the
+     "REGISTRATION FORM" section near the bottom of the page.
+     ============================================================ */
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink-soft);
+  font-family:var(--sans);
+  font-weight:400;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+  /* subtle paper grain */
+  background-image:
+    radial-gradient(rgba(44,46,42,.022) 1px, transparent 1px),
+    radial-gradient(rgba(44,46,42,.018) 1px, transparent 1px);
+  background-size:22px 22px, 34px 34px;
+  background-position:0 0, 11px 17px;
+}
+img{display:block;max-width:100%}
+a{color:inherit;text-decoration:none}
+
+h1,h2,h3{font-family:var(--serif);color:var(--ink);font-weight:600;line-height:1.02}
+
+.container{max-width:1120px;margin:0 auto;padding:0 var(--gutter)}
+
+/* Reusable eyebrow label */
+.eyebrow{
+  font-family:var(--sans);
+  font-size:.72rem;
+  font-weight:600;
+  letter-spacing:.34em;
+  text-transform:uppercase;
+  color:var(--dim);
+}
+
+/* Buttons */
+.btn{
+  display:inline-block;font-family:var(--sans);font-weight:700;
+  font-size:.8rem;letter-spacing:.12em;text-transform:uppercase;
+  padding:1rem 2.3rem;border-radius:2.5rem;
+  background:var(--rust);color:var(--paper);
+  transition:transform .3s ease, background .3s ease, box-shadow .3s ease;
+}
+.btn:hover{transform:translateY(-3px);background:#9b4630;box-shadow:0 14px 34px rgba(176,83,59,.28)}
+.btn--ghost{background:transparent;color:var(--ink);border:1px solid var(--ink)}
+.btn--ghost:hover{background:var(--ink);color:var(--paper);box-shadow:none}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+.nav{
+  position:fixed;top:0;left:0;width:100%;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:1.2rem var(--gutter);
+  transition:background .4s ease, padding .4s ease, border-color .4s ease;
+  border-bottom:1px solid transparent;
+}
+.nav.scrolled{
+  background:rgba(244,236,221,0.88);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  padding:.7rem var(--gutter);
+  border-bottom:1px solid var(--line);
+}
+.nav__logo img{height:42px;width:auto;display:block;transition:height .4s ease,opacity .3s ease}
+.nav__logo:hover img{opacity:.82}
+.nav.scrolled .nav__logo img{height:36px}
+.nav__links{display:flex;align-items:center;gap:2rem}
+.nav__links a{font-size:.76rem;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);font-weight:500;transition:color .25s}
+.nav__links a:hover{color:var(--rust)}
+.nav__reg{
+  border:1px solid var(--rust);
+  color:var(--rust)!important;
+  padding:.55rem 1.35rem;border-radius:2rem;
+  transition:background .3s,color .3s!important;
+}
+.nav__reg:hover{background:var(--rust);color:var(--paper)!important}
+.nav__toggle{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:.4rem}
+.nav__toggle span{width:26px;height:2px;background:var(--ink);transition:.3s}
+
+.mobile-menu{
+  position:fixed;inset:0;z-index:99;
+  background:rgba(244,236,221,0.98);
+  backdrop-filter:blur(8px);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;
+  opacity:0;pointer-events:none;transition:opacity .4s;
+}
+.mobile-menu.open{opacity:1;pointer-events:auto}
+.mobile-menu a{font-family:var(--serif);font-size:2rem;color:var(--ink)}
+.mobile-menu a:hover{color:var(--rust)}
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero{
+  position:relative;overflow:hidden;
+  padding:9rem 0 3.5rem;
+}
+.hero__inner{display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(1.5rem,4vw,3.5rem);align-items:center}
+.hero__eyebrow{margin-bottom:1.6rem;color:var(--teal)}
+.hero__title{
+  font-size:clamp(3.2rem, 9vw, 6.6rem);
+  line-height:.94;letter-spacing:-.01em;
+  color:var(--ink);font-weight:300;
+  margin-bottom:1.1rem;
+}
+.hero__title strong{font-weight:700}
+.hero__sub{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(1.3rem,3vw,2rem);color:var(--ink-soft);
+  line-height:1.25;margin-bottom:1.8rem;
+}
+.hero__sub em{color:var(--rust);font-style:italic}
+.hero__meta{
+  display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;align-items:center;
+  font-size:.9rem;letter-spacing:.04em;color:var(--ink);
+  margin-bottom:2rem;
+}
+.hero__meta .dot{color:var(--rust)}
+.hero__cta{display:flex;flex-wrap:wrap;align-items:center;gap:1.2rem}
+.hero__art{position:relative}
+.hero__art img{
+  width:100%;border-radius:14px;
+  box-shadow:0 24px 60px rgba(44,46,42,.18);
+  border:1px solid var(--line-soft);
+}
+
+/* Divider rule */
+.rule{height:1px;background:var(--line);border:0;margin:0}
+
+/* ============================================================
+   SECTION SHELL
+   ============================================================ */
+section{padding:var(--section-y) 0}
+.section-head{text-align:center;margin-bottom:clamp(2.5rem,6vw,4rem)}
+.section-head .eyebrow{margin-bottom:1rem}
+.section-title{font-size:clamp(2.2rem,5.5vw,3.6rem);line-height:1.02;color:var(--ink)}
+.section-title em{color:var(--rust);font-style:italic}
+.lead{max-width:56ch;margin:1rem auto 0;font-size:clamp(1.02rem,2vw,1.18rem);color:var(--ink-soft);line-height:1.7}
+
+/* ============================================================
+   SESSION OUTLINE
+   ============================================================ */
+.sessions{background:var(--paper-2)}
+.session{
+  display:grid;grid-template-columns:auto 1fr auto;gap:clamp(1rem,4vw,3.5rem);
+  padding:clamp(1.8rem,4vw,2.8rem) 0;border-top:1px solid var(--line);
+  align-items:start;
+}
+.session:last-child{border-bottom:1px solid var(--line)}
+.session__no{
+  font-family:var(--sans);font-size:.68rem;font-weight:600;
+  letter-spacing:.24em;text-transform:uppercase;color:var(--dim);
+  padding-top:.5rem;white-space:nowrap;
+}
+.session__title{
+  font-family:var(--serif);font-weight:700;color:var(--ink);
+  font-size:clamp(1.9rem,4.5vw,3rem);line-height:1;letter-spacing:-.01em;
+}
+.session__right{text-align:right;min-width:14rem}
+.session__desc{
+  font-family:var(--serif);font-style:italic;font-size:clamp(1.05rem,2.2vw,1.35rem);
+  color:var(--ink-soft);line-height:1.3;margin-bottom:1rem;
+}
+.session__date{
+  font-family:var(--serif);font-style:italic;font-size:1.05rem;color:var(--rust);line-height:1.4;
+}
+
+/* ============================================================
+   PRICING
+   ============================================================ */
+.pricing{background:var(--paper)}
+.tiers{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;
+  max-width:960px;margin:0 auto;align-items:stretch;
+}
+.tier{
+  display:flex;flex-direction:column;
+  border:1px solid var(--line);border-radius:16px;
+  padding:2.6rem 2rem 2.2rem;background:rgba(255,255,255,.28);
+  transition:transform .4s ease,border-color .4s ease,box-shadow .4s ease;
+}
+.tier:hover{transform:translateY(-5px);border-color:var(--rust);box-shadow:0 20px 50px rgba(44,46,42,.10)}
+.tier--feature{
+  border-color:var(--teal);
+  background:linear-gradient(180deg,rgba(47,106,114,.07),rgba(198,154,58,.05));
+}
+.tier__tag{
+  font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--teal);margin-bottom:1.2rem;font-weight:700;
+}
+.tier--feature .tier__tag{color:var(--rust)}
+.tier__price{
+  font-family:var(--serif);font-size:clamp(3rem,8vw,4rem);line-height:1;
+  color:var(--ink);margin-bottom:.5rem;font-weight:600;
+}
+.tier__price sup{font-size:1.3rem;font-weight:500;vertical-align:super;color:var(--ink-soft);margin-right:.1rem}
+.tier__name{font-family:var(--serif);font-size:1.5rem;color:var(--ink);margin-bottom:.7rem;font-weight:600}
+.tier__note{font-size:.98rem;color:var(--ink-soft);line-height:1.55;flex:1}
+.tier__chai{
+  margin-top:1rem;padding-top:1rem;border-top:1px dashed var(--line);
+  font-size:.92rem;color:var(--teal);font-weight:600;
+}
+.tier__chai strong{color:var(--rust)}
+.tier__cta{margin-top:1.8rem}
+.tier__cta .btn{width:100%;text-align:center}
+.tier--feature .tier__cta .btn{background:var(--teal)}
+.tier--feature .tier__cta .btn:hover{background:#26565c}
+.pricing__foot{text-align:center;margin-top:2.4rem;font-size:.95rem;color:var(--dim)}
+.pricing__foot a{color:var(--rust);text-decoration:underline;text-underline-offset:2px}
+
+/* ============================================================
+   DETAILS BAR
+   ============================================================ */
+.details{background:var(--paper-2)}
+.details__grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem;text-align:center}
+.detail{padding:1.6rem 1rem}
+.detail__label{font-size:.68rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-bottom:.7rem}
+.detail__value{font-family:var(--serif);font-size:1.25rem;color:var(--ink);line-height:1.3}
+.detail__value span{color:var(--rust)}
+
+/* ============================================================
+   REGISTRATION FORM
+   ============================================================ */
+.register{background:var(--paper)}
+.register .section-head{margin-bottom:2rem}
+.form-card{
+  background:#fbf6ea;border-radius:20px;padding:clamp(.75rem,2vw,1.25rem);
+  box-shadow:0 24px 60px rgba(44,46,42,.16);
+  max-width:760px;margin:0 auto;border:1px solid var(--line-soft);
+}
+.form-card iframe{width:100%;border:0;border-radius:12px;display:block;background:#fbf6ea;min-height:1100px}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+.footer{background:var(--ink);color:var(--paper);padding:clamp(3rem,7vw,5rem) 0 2.5rem}
+.footer__grid{display:grid;grid-template-columns:1.4fr 1fr;gap:2.5rem;margin-bottom:2.5rem}
+.footer__brand h3{font-size:1.5rem;color:var(--paper);margin-bottom:.8rem}
+.footer__brand p{max-width:40ch;color:rgba(244,236,221,.62);font-size:.95rem}
+.footer__links{display:flex;flex-wrap:wrap;gap:.8rem 1.8rem;align-content:start;justify-content:flex-end}
+.footer__links a{font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:rgba(244,236,221,.82);transition:color .3s}
+.footer__links a:hover{color:var(--gold)}
+.footer__base{border-top:1px solid rgba(244,236,221,.16);padding-top:1.8rem;display:flex;flex-wrap:wrap;gap:.6rem 2rem;justify-content:space-between;font-size:.8rem;color:rgba(244,236,221,.5)}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .8s ease, transform .8s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width:900px){
+  .nav__links{display:none}
+  .nav__toggle{display:flex}
+  .hero__inner{grid-template-columns:1fr}
+  .hero__art{order:-1;max-width:520px}
+  .tiers{grid-template-columns:1fr;max-width:420px}
+  .session{grid-template-columns:1fr;gap:.6rem}
+  .session__right{text-align:left;min-width:0}
+  .details__grid{grid-template-columns:1fr;gap:.4rem}
+  .footer__grid{grid-template-columns:1fr}
+  .footer__links{justify-content:flex-start}
+}
+@media (max-width:560px){
+  .btn{display:block;padding:1.05rem 1.5rem}
+  .hero__cta{flex-direction:column;align-items:stretch}
+  .hero__cta .btn{text-align:center}
+  .hero{padding-top:7.5rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  .reveal{opacity:1;transform:none}
+}
+a:focus-visible,button:focus-visible{outline:2px solid var(--rust);outline-offset:3px;border-radius:3px}
+@media (hover:none){
+  .btn:hover,.tier:hover{transform:none}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     NAVIGATION
+     ============================================================ -->
+<nav class="nav" id="nav">
+  <a href="https://www.chabadyoungsp.com" class="nav__logo" aria-label="Chabad Young Professionals of St. Pete — home">
+    <img src="images/logo.png" alt="Chabad Young Professionals of St. Pete">
+  </a>
+  <div class="nav__links">
+    <a href="#sessions">Sessions</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#details">Details</a>
+    <a href="#register" class="nav__reg" data-reg>Register</a>
+  </div>
+  <button class="nav__toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#sessions">Sessions</a>
+  <a href="#pricing">Pricing</a>
+  <a href="#details">Details</a>
+  <a href="#register" data-reg>Register</a>
+</div>
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+<header class="hero" id="top">
+  <div class="container hero__inner">
+    <div>
+      <p class="eyebrow hero__eyebrow">CYP Dinner &amp; Discussion</p>
+      <h1 class="hero__title">Fascinating <strong>Facts</strong></h1>
+      <p class="hero__sub">Exploring the <em>Myths and Mysteries</em> of Judaism</p>
+      <div class="hero__meta">
+        <span>Four-part series</span>
+        <span class="dot">&middot;</span>
+        <span>Dinner included</span>
+        <span class="dot">&middot;</span>
+        <span>From $10 per discussion</span>
+      </div>
+      <div class="hero__cta">
+        <a href="#register" class="btn" data-reg>Register Now</a>
+        <a href="#sessions" class="btn btn--ghost">See the Sessions</a>
+      </div>
+    </div>
+    <div class="hero__art reveal">
+      <img src="images/banner.webp" alt="Fascinating Facts illustration: a serpent and apple, scales of justice, an eye, and wings of an ancient book">
+    </div>
+  </div>
+</header>
+
+<!-- ============================================================
+     SESSION OUTLINE
+     ============================================================ -->
+<section class="sessions" id="sessions">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="eyebrow">Session Outline</p>
+      <h2 class="section-title">Four Nights. Four <em>Mysteries.</em></h2>
+    </div>
+
+    <div class="session reveal">
+      <div class="session__no">Session One</div>
+      <h3 class="session__title">Moses Had Horns?</h3>
+      <div class="session__right">
+        <p class="session__desc">What Hebrew School Didn&rsquo;t Teach You About the Torah</p>
+        <p class="session__date">October 20<br>7:00 PM</p>
+      </div>
+    </div>
+
+    <div class="session reveal">
+      <div class="session__no">Session Two</div>
+      <h3 class="session__title">Why Do We Do That?</h3>
+      <div class="session__right">
+        <p class="session__desc">The Jewish Secrets Behind Life&rsquo;s Biggest Moments</p>
+        <p class="session__date">November 23<br>7:00 PM</p>
+      </div>
+    </div>
+
+    <div class="session reveal">
+      <div class="session__no">Session Three</div>
+      <h3 class="session__title">Angels and Demons</h3>
+      <div class="session__right">
+        <p class="session__desc">What Judaism Says About the World You Can&rsquo;t See</p>
+        <p class="session__date">December 22<br>7:00 PM</p>
+      </div>
+    </div>
+
+    <div class="session reveal">
+      <div class="session__no">Session Four</div>
+      <h3 class="session__title">Beyond the Nose Job</h3>
+      <div class="session__right">
+        <p class="session__desc">Judaism&rsquo;s Answers to Life&rsquo;s Biggest Questions</p>
+        <p class="session__date">January 26<br>7:00 PM</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     PRICING
+     ============================================================ -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="eyebrow">Pricing</p>
+      <h2 class="section-title">Simple, <em>Flexible</em> Pricing</h2>
+      <p class="lead">Come to a single discussion, or join the whole series. Add the course textbook to follow along and keep for good.</p>
+    </div>
+
+    <div class="tiers">
+      <div class="tier reveal">
+        <p class="tier__tag">Per Session</p>
+        <div class="tier__price"><sup>$</sup>10</div>
+        <h3 class="tier__name">Single Discussion</h3>
+        <p class="tier__note">Drop in to any one evening of dinner &amp; discussion. Textbook <em>not</em> included.</p>
+        <div class="tier__cta"><a href="#register" class="btn" data-reg>Register</a></div>
+      </div>
+
+      <div class="tier tier--feature reveal">
+        <p class="tier__tag">Best Value &middot; All 4 Sessions</p>
+        <div class="tier__price"><sup>$</sup>50</div>
+        <h3 class="tier__name">Full Series in Advance</h3>
+        <p class="tier__note">All four discussions, the course textbook, and dinner every night &mdash; reserved in advance.</p>
+        <p class="tier__chai">Chai Club members: <strong>$45</strong></p>
+        <div class="tier__cta"><a href="#register" class="btn" data-reg>Reserve the Series</a></div>
+      </div>
+
+      <div class="tier reveal">
+        <p class="tier__tag">Add-On</p>
+        <div class="tier__price"><sup>$</sup>20</div>
+        <h3 class="tier__name">Course Textbook</h3>
+        <p class="tier__note">The companion textbook on its own &mdash; yours to keep and follow along all four sessions.</p>
+        <div class="tier__cta"><a href="#register" class="btn" data-reg>Add Textbook</a></div>
+      </div>
+    </div>
+
+    <p class="pricing__foot reveal">Not a Chai Club member? <a href="https://www.chabadyoungsp.com/">Learn more here.</a> Cost should never be a barrier &mdash; reach out to Rabbi Mendel at <a href="mailto:mendel@chabadsp.com">mendel@chabadsp.com</a>.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     DETAILS BAR
+     ============================================================ -->
+<section class="details" id="details">
+  <div class="container">
+    <div class="details__grid reveal">
+      <div class="detail">
+        <p class="detail__label">When</p>
+        <p class="detail__value">Monthly &middot; <span>7:00 PM</span></p>
+      </div>
+      <div class="detail">
+        <p class="detail__label">Where</p>
+        <p class="detail__value">Chabad Center for Jewish Life<br>St. Petersburg, FL</p>
+      </div>
+      <div class="detail">
+        <p class="detail__label">Includes</p>
+        <p class="detail__value">Dinner &amp; <span>Discussion</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     REGISTRATION FORM
+     Replace the iframe "src" below with your ChabadMS form link.
+     (Right now it uses a placeholder — swap in the real form ID.)
+     ============================================================ -->
+<section class="register" id="register">
+  <div class="container">
+    <div class="section-head reveal">
+      <p class="eyebrow">Reserve Your Spot</p>
+      <h2 class="section-title">Register for <em>Fascinating Facts</em></h2>
+      <p class="lead">Fill out the quick form below to save your seat. Spots are limited &mdash; register today.</p>
+    </div>
+    <div class="form-card reveal">
+      <!-- ▼▼▼ EDIT THIS LINE: paste your ChabadMS registration form link ▼▼▼ -->
+      <iframe
+        src="https://chabadsp.chabadms.com/api/Forms/getFormView?id=REPLACE-WITH-YOUR-FORM-ID"
+        title="Fascinating Facts registration form"
+        loading="lazy"
+        height="1600"></iframe>
+      <!-- ▲▲▲ EDIT THE LINE ABOVE ▲▲▲ -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <h3>CYP St. Pete</h3>
+        <p>Creating meaningful Jewish experiences for young professionals throughout St. Petersburg.</p>
+      </div>
+      <div class="footer__links">
+        <a href="https://www.instagram.com/chabadsp" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.facebook.com/chabadsp" target="_blank" rel="noopener">Facebook</a>
+        <a href="https://www.chabadyoungsp.com/">Upcoming Events</a>
+        <a href="mailto:mendel@chabadsp.com">Contact</a>
+        <a href="https://www.chabadyoungsp.com/">ChabadYoungSP.com</a>
+      </div>
+    </div>
+    <div class="footer__base">
+      <span>533 4th Street North, St. Petersburg, FL</span>
+      <span>A project of Chabad Jewish Center of Greater St. Petersburg</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+(function(){
+  "use strict";
+
+  /* --- Register buttons scroll to the embedded form (#register) --- */
+  document.querySelectorAll('[data-reg]').forEach(function(el){
+    el.setAttribute('href', '#register');
+  });
+
+  /* --- Nav gets a background after scrolling --- */
+  var nav = document.getElementById('nav');
+  function onScroll(){
+    if(window.scrollY > 40){ nav.classList.add('scrolled'); }
+    else { nav.classList.remove('scrolled'); }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+
+  /* --- Mobile menu --- */
+  var toggle = document.getElementById('navToggle');
+  var menu = document.getElementById('mobileMenu');
+  toggle.addEventListener('click', function(){
+    var open = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', open ? 'true':'false');
+    document.body.style.overflow = open ? 'hidden':'';
+  });
+  menu.querySelectorAll('a').forEach(function(a){
+    a.addEventListener('click', function(){
+      menu.classList.remove('open');
+      toggle.setAttribute('aria-expanded','false');
+      document.body.style.overflow='';
+    });
+  });
+
+  /* --- Scroll reveal --- */
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var reveals = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !reduce){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, {threshold:0.15});
+    reveals.forEach(function(r){ io.observe(r); });
+  } else {
+    reveals.forEach(function(r){ r.classList.add('in'); });
+  }
+
+  /* --- Auto-resize the form iframe if the form posts its height --- */
+  window.addEventListener('message', function(e){
+    var d = e.data, h = null;
+    if (typeof d === 'number') h = d;
+    else if (d && typeof d === 'object' && (d.height || d.frameHeight)) h = d.height || d.frameHeight;
+    if (h && h > 300){
+      var f = document.querySelector('.form-card iframe');
+      if (f) f.style.height = h + 'px';
+    }
+  }, false);
+})();
+</script>
+</body>
+</html>
