@@ -271,11 +271,27 @@ section{padding:var(--section-y) 0}
 .register{background:var(--paper)}
 .register .section-head{margin-bottom:2rem}
 .form-card{
+  position:relative;
   background:#fbf6ea;border-radius:0;padding:clamp(.75rem,2vw,1.25rem);
   box-shadow:0 24px 60px rgba(44,46,42,.16);
   max-width:760px;margin:0 auto;border:1px solid var(--line-soft);
 }
 .form-card iframe{width:100%;border:0;border-radius:0;display:block;background:#fbf6ea;min-height:1100px}
+/* Loading skeleton shown until the registration form finishes loading */
+.form-skeleton{
+  position:absolute;inset:clamp(.75rem,2vw,1.25rem);z-index:2;
+  display:flex;flex-direction:column;gap:16px;padding:14px 6px;background:#fbf6ea;
+}
+.form-skeleton.is-hidden{display:none}
+.form-skeleton span{
+  display:block;background:linear-gradient(90deg,#efe5d3 25%,#f7f0e1 37%,#efe5d3 63%);
+  background-size:400% 100%;animation:shimmer 1.4s ease infinite;
+}
+.form-skeleton .sk-line{height:14px}
+.form-skeleton .sk-field{height:46px;margin-top:8px}
+.form-skeleton .sk-btn{height:48px;width:190px;margin-top:14px}
+@keyframes shimmer{0%{background-position:100% 0}100%{background-position:0 0}}
+@media (prefers-reduced-motion:reduce){.form-skeleton span{animation:none}}
 
 /* ============================================================
    FOOTER
@@ -330,7 +346,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rust);outline-offse
      ============================================================ -->
 <nav class="nav" id="nav">
   <a href="https://www.chabadyoungsp.com" class="nav__logo" aria-label="Chabad Young Professionals of St. Pete — home">
-    <img src="images/logo-dark.png" alt="Chabad Young Professionals of St. Pete">
+    <img src="images/logo-dark.png" alt="Chabad Young Professionals of St. Pete" width="255" height="133" decoding="async">
   </a>
   <div class="nav__links">
     <a href="#sessions">Sessions</a>
@@ -495,12 +511,24 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rust);outline-offse
       <p class="lead">Fill out the quick form below to save your seat. Spots are limited &mdash; register today.</p>
     </div>
     <div class="form-card reveal">
+      <!-- If JavaScript is off, never let the skeleton cover the form -->
+      <noscript><style>.form-skeleton{display:none}</style></noscript>
+      <!-- Loading skeleton: shows a placeholder until the form loads -->
+      <div class="form-skeleton" id="formSkeleton" aria-hidden="true">
+        <span class="sk-line" style="width:55%"></span>
+        <span class="sk-line" style="width:85%"></span>
+        <span class="sk-field"></span>
+        <span class="sk-field"></span>
+        <span class="sk-field"></span>
+        <span class="sk-btn"></span>
+      </div>
       <!-- ▼▼▼ EDIT THIS LINE: your ChabadMS registration form link ▼▼▼ -->
       <iframe
         src="https://chabadsp.chabadms.com/api/Forms/getFormView?id=24416c60-ced2-47b9-a0e5-0f009a6a319d"
         title="Fascinating Facts registration form"
         loading="lazy"
-        height="2000"></iframe>
+        height="2000"
+        onload="var s=document.getElementById('formSkeleton');if(s)s.classList.add('is-hidden')"></iframe>
       <!-- ▲▲▲ EDIT THE LINE ABOVE ▲▲▲ -->
     </div>
   </div>
@@ -581,6 +609,13 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rust);outline-offse
   } else {
     reveals.forEach(function(r){ r.classList.add('in'); });
   }
+
+  /* --- Fallback: hide the form skeleton after a few seconds even if
+         the iframe's onload is slow, so it never lingers forever --- */
+  setTimeout(function(){
+    var s = document.getElementById('formSkeleton');
+    if (s) s.classList.add('is-hidden');
+  }, 6000);
 
   /* --- Auto-resize the form iframe if the form posts its height --- */
   window.addEventListener('message', function(e){
