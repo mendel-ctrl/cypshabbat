@@ -149,12 +149,20 @@ h1,h2,h3{font-family:var(--serif);color:var(--ink);font-weight:600;line-height:1
 /* ============================================================
    HERO
    ============================================================ */
-.hero{position:relative;overflow:hidden;padding:0}
-/* Full-bleed banner across the very top of the page */
-.hero__banner{width:100%;padding-top:clamp(4.5rem,7vw,6rem)}
-.hero__banner img{width:100%;height:auto;display:block}
-.hero__intro{text-align:center;padding-top:clamp(1.6rem,4vw,2.6rem)}
-.hero__eyebrow{margin-bottom:1.2rem;color:var(--teal)}
+.hero{position:relative;overflow:hidden;padding:clamp(7rem,13vw,10.5rem) 0 clamp(2.5rem,6vw,4rem)}
+.hero__intro{text-align:center}
+.hero__eyebrow{margin-bottom:1.4rem;color:var(--teal)}
+.hero__title{
+  font-size:clamp(3.4rem,11vw,7rem);line-height:.94;letter-spacing:-.01em;
+  color:var(--ink);font-weight:300;margin-bottom:1rem;
+}
+.hero__title strong{font-weight:700}
+.hero__sub{
+  font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(1.35rem,3.4vw,2.2rem);color:var(--ink-soft);
+  line-height:1.25;margin-bottom:1.9rem;
+}
+.hero__sub em{color:var(--rust);font-style:italic}
 .hero__meta{
   display:flex;flex-wrap:wrap;gap:.5rem 1.2rem;align-items:center;justify-content:center;
   font-size:.9rem;letter-spacing:.04em;color:var(--ink);
@@ -322,7 +330,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rust);outline-offse
      ============================================================ -->
 <nav class="nav" id="nav">
   <a href="https://www.chabadyoungsp.com" class="nav__logo" aria-label="Chabad Young Professionals of St. Pete — home">
-    <img src="images/logo.png" alt="Chabad Young Professionals of St. Pete">
+    <img src="images/logo-dark.png" alt="Chabad Young Professionals of St. Pete">
   </a>
   <div class="nav__links">
     <a href="#sessions">Sessions</a>
@@ -346,11 +354,10 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--rust);outline-offse
      HERO
      ============================================================ -->
 <header class="hero" id="top">
-  <div class="hero__banner">
-    <img src="images/banner.webp" alt="Fascinating Facts — Exploring the Myths and Mysteries of Judaism">
-  </div>
   <div class="container hero__intro">
     <p class="eyebrow hero__eyebrow">CYP Dinner &amp; Discussion</p>
+    <h1 class="hero__title">Fascinating <strong>Facts</strong></h1>
+    <p class="hero__sub">Exploring the <em>Myths and Mysteries</em> of Judaism</p>
     <div class="hero__meta">
       <span>Four-part series</span>
       <span class="dot">&middot;</span>
